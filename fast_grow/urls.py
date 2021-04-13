@@ -1,3 +1,4 @@
+"""fast_grow urls"""
 from django.urls import path
 
 from . import views

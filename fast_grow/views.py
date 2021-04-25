@@ -35,12 +35,12 @@ def complex_create(request):
                     return JsonResponse({'error': 'ligand is not an SD file (.sdf)'}, status=400)
 
                 ligand_name = os.path.basename(ligand_filename)[:255]  # name has max size of 255
-                ligand_string = request.FILES['ligand'].read()
+                ligand_string = request.FILES['ligand'].read().decode('utf8')
                 ligand = Ligand(
                     name=ligand_name,
                     file_type=ligand_extension[1:],  # remove period
                     file_string=ligand_string,
-                    complex_id=cmplx
+                    complex=cmplx
                 )
                 ligand.save()
             preprocess_complex.delay(cmplx.id)

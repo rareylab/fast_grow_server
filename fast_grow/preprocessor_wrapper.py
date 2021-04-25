@@ -30,7 +30,6 @@ class PreprocessorWrapper:
         complex_file = cmplx.write_temp()
         ligand_file = None
         if cmplx.ligand_set.count() > 1:  # pylint: disable=no-else-raise
-            print(cmplx.ligand_set.count())
             error_string = 'complex({}) to be processed has more than one ligand'.format(cmplx.id)
             raise RuntimeError(error_string)
         elif cmplx.ligand_set.count() == 1:

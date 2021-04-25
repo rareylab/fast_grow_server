@@ -12,7 +12,7 @@ pip install -r requirements.txt
 ```
 The dependency psycopg-2 needs dev headers to build. Ensure you have "python3-dev" and "libpq".
 
-At this point either set the environment variables `$USER`, `$PASSWORD` and `$DATABASES` to the ones configured in the `fast\_grow\_server/settings.py` or replace them with appropriate values below.
+At this point either set the environment variables `$USER`, `$PASSWORD` and `$DATABASE` to the ones configured in the `fast\_grow\_server/settings.py` or replace them with appropriate values below.
 
 fast\_grow\_server requires a postgres database and a separate database user. You can create a user with appropriate permissions with this:
 ```bash

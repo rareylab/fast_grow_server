@@ -55,8 +55,8 @@ class Complex(models.Model):
             complex_dict['file_type'] = self.file_type
             complex_dict['file_string'] = str(self.file_string)
             complex_dict['ligands'] = [ligand.dict() for ligand in self.ligand_set.all()]
-            complex_dict['interactions'] = \
-                [interactions.dict() for interactions in self.interaction_set.all()]
+            complex_dict['search_point_data'] = \
+                [search_point_data.dict() for search_point_data in self.searchpointdata_set.all()]
         return complex_dict
 
     def write_temp(self):
@@ -100,12 +100,11 @@ class Ligand(models.Model):
         return temp_file
 
 
-class Interaction(models.Model):
+class SearchPointData(models.Model):
     """Model representing a protein-ligand interaction"""
     complex = models.ForeignKey(Complex, on_delete=models.CASCADE)
     ligand = models.ForeignKey(Ligand, on_delete=models.CASCADE)
-    json_interaction = models.TextField()
-    water_interaction = models.BooleanField(default=False)
+    data = models.TextField()
 
     def dict(self):
         """Convert interaction to a dictionary"""
@@ -113,6 +112,5 @@ class Interaction(models.Model):
             'id': self.id,
             'complex_id': self.complex.id,
             'ligand_id': self.ligand.id,
-            'interactions': json.loads(self.json_interaction),
-            'water_interaction': self.water_interaction
+            'data': json.loads(self.data),
         }

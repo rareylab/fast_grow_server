@@ -1,0 +1,942 @@
+{
+    "activeSiteSearchPoints": {
+        "mapping": [
+            [
+                0,
+                "ARG_A_110"
+            ],
+            [
+                1,
+                "SER_A_149"
+            ],
+            [
+                2,
+                "THR_A_150"
+            ],
+            [
+                3,
+                "THR_A_150"
+            ],
+            [
+                4,
+                "PRO_A_152"
+            ],
+            [
+                5,
+                "GLY_A_154"
+            ],
+            [
+                6,
+                "GLY_A_154"
+            ],
+            [
+                7,
+                "THR_A_155"
+            ],
+            [
+                8,
+                "ARG_A_202"
+            ],
+            [
+                9,
+                "ARG_A_202"
+            ],
+            [
+                10,
+                "ARG_A_202"
+            ],
+            [
+                11,
+                "PRO_A_219"
+            ],
+            [
+                12,
+                "CYS_A_220"
+            ],
+            [
+                13,
+                "CYS_A_220"
+            ],
+            [
+                14,
+                "GLU_A_221"
+            ],
+            [
+                15,
+                "GLU_A_221"
+            ],
+            [
+                16,
+                "GLU_A_221"
+            ],
+            [
+                17,
+                "GLU_A_221"
+            ],
+            [
+                18,
+                "PRO_A_222"
+            ],
+            [
+                19,
+                "PRO_A_222"
+            ],
+            [
+                20,
+                "PRO_A_223"
+            ],
+            [
+                21,
+                "PRO_A_223"
+            ],
+            [
+                22,
+                "GLU_A_224"
+            ],
+            [
+                23,
+                "GLU_A_224"
+            ],
+            [
+                24,
+                "GLU_A_224"
+            ],
+            [
+                25,
+                "GLY_A_226"
+            ],
+            [
+                26,
+                "SER_A_227"
+            ],
+            [
+                27,
+                "SER_A_227"
+            ],
+            [
+                28,
+                "ASP_A_228"
+            ],
+            [
+                29,
+                "CYS_A_229"
+            ],
+            [
+                30,
+                "THR_A_231"
+            ],
+            [
+                31,
+                "THR_A_231"
+            ],
+            [
+                32,
+                "THR_A_231"
+            ],
+            [
+                33,
+                "PHE_A_109"
+            ],
+            [
+                33,
+                "LEU_A_145"
+            ],
+            [
+                33,
+                "VAL_A_147"
+            ],
+            [
+                34,
+                "LEU_A_111"
+            ],
+            [
+                34,
+                "VAL_A_143"
+            ],
+            [
+                34,
+                "LEU_A_145"
+            ]
+        ],
+        "searchPoints": [
+            {
+                "position": [
+                    96.48531200094699,
+                    100.18922613915113,
+                    -33.44441345816818
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    100.5387814568193,
+                    100.03614748141962,
+                    -50.597503779019945
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    93.32277904624056,
+                    100.49837088734847,
+                    -50.16533123985757
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    88.52773864344643,
+                    97.41133058690107,
+                    -50.64939404970655
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    92.30875359908313,
+                    87.57115076801462,
+                    -48.26563914202182
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    96.01905508273643,
+                    80.51906079338032,
+                    -50.01890042135826
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    90.07786954199523,
+                    86.7063957753938,
+                    -48.60724987814884
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    90.99122743944832,
+                    85.15600892710438,
+                    -48.44839859512714
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    84.33302843507118,
+                    82.4921375456268,
+                    -42.498228649337264
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    88.57828630768435,
+                    85.62104520607922,
+                    -49.7233907556094
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    87.93159843947035,
+                    87.04144200878258,
+                    -48.076363119160746
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    88.88865028878526,
+                    86.80527010081288,
+                    -39.901077904464444
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    88.63489880803556,
+                    88.96106862550677,
+                    -48.86056840320885
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    90.51297014371188,
+                    86.52371147831391,
+                    -49.12154964514226
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    90.75367315185645,
+                    87.83718335512742,
+                    -39.94901071500659
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    83.30757992867326,
+                    85.16533027198336,
+                    -39.875165822614264
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    85.27132570678496,
+                    89.98651025602148,
+                    -40.504989042250585
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    84.22158486127174,
+                    82.15565528202652,
+                    -41.900400278081776
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    84.78741905731574,
+                    91.14535194331805,
+                    -39.27248137719824
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    83.79603944107632,
+                    89.24610497202255,
+                    -43.97974638865445
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    81.73403121727878,
+                    93.3584435305186,
+                    -45.53709915934115
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    84.7055566175141,
+                    96.7999851043058,
+                    -45.79453989737637
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    85.0784651056293,
+                    92.74068136524672,
+                    -37.26567181936435
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    82.0902139946668,
+                    87.93101187299554,
+                    -43.702570525692586
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    85.4730966978807,
+                    89.35193500051417,
+                    -39.126965073485
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    83.05043704891953,
+                    100.01552075270939,
+                    -44.041663836689004
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    83.53078621154106,
+                    98.75939189119964,
+                    -43.66947154342782
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    83.27230528658566,
+                    93.07015234082522,
+                    -35.77449082757637
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    85.88512638913704,
+                    98.51032019090322,
+                    -34.34442831487648
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    84.51872314049872,
+                    93.04438644620414,
+                    -36.23501901292719
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    86.2000904384078,
+                    85.10014621235564,
+                    -37.4369032158132
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    84.35497588861507,
+                    88.50810067988171,
+                    -37.874394524769585
+                ],
+                "type": "DONOR"
+            },
+            {
+                "position": [
+                    84.79262905391872,
+                    90.71305135322604,
+                    -37.95639955220063
+                ],
+                "type": "ACCEPTOR"
+            },
+            {
+                "position": [
+                    94.6658902720899,
+                    92.39889880406537,
+                    -41.088662068893804
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            {
+                "position": [
+                    95.81481147891532,
+                    87.62221537868236,
+                    -34.44970847132846
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        ]
+    },
+    "ligandSearchPoints": [
+        {
+            "ligandInteraction": {
+                "position": [
+                    90.857,
+                    96.965,
+                    -42.659
+                ],
+                "type": "ACCEPTOR"
+            },
+            "score": 0.9887226946553274,
+            "siteInteraction": {
+                "position": [
+                    92.259,
+                    98.057,
+                    -40.27
+                ],
+                "type": "DONOR"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    90.499,
+                    95.899,
+                    -44.788
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.9445006404724624,
+            "siteInteraction": {
+                "position": [
+                    87.742,
+                    95.249,
+                    -42.678
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    91.43,
+                    101.081,
+                    -44.802
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.06795841050645413,
+            "siteInteraction": {
+                "position": [
+                    94.458,
+                    96.572,
+                    -43.365
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    90.909,
+                    95.837,
+                    -43.43
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.9055070420978146,
+            "siteInteraction": {
+                "position": [
+                    94.458,
+                    96.572,
+                    -43.365
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    91.396,
+                    94.604,
+                    -42.957
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.8896241023250268,
+            "siteInteraction": {
+                "position": [
+                    94.458,
+                    96.572,
+                    -43.365
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    91.068,
+                    93.555,
+                    -45.098
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.9240711413238382,
+            "siteInteraction": {
+                "position": [
+                    87.658,
+                    92.822,
+                    -44.288
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    90.579,
+                    94.767,
+                    -45.609
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.8530640384036126,
+            "siteInteraction": {
+                "position": [
+                    87.658,
+                    92.822,
+                    -44.288
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    91.481,
+                    93.457,
+                    -43.763
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.7853876939208572,
+            "siteInteraction": {
+                "position": [
+                    87.658,
+                    92.822,
+                    -44.288
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    92.451,
+                    99.94,
+                    -44.695
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.6890364048591037,
+            "siteInteraction": {
+                "position": [
+                    94.458,
+                    96.572,
+                    -43.365
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    89.905,
+                    97.166,
+                    -45.335
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.7790113423015111,
+            "siteInteraction": {
+                "position": [
+                    87.742,
+                    95.249,
+                    -42.678
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    91.821,
+                    98.707,
+                    -45.322
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.7828292112719378,
+            "siteInteraction": {
+                "position": [
+                    94.458,
+                    96.572,
+                    -43.365
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    89.543,
+                    99.545,
+                    -44.717
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.2920369269598758,
+            "siteInteraction": {
+                "position": [
+                    87.742,
+                    95.249,
+                    -42.678
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    91.986,
+                    94.458,
+                    -40.927
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.8505721756255499,
+            "siteInteraction": {
+                "position": [
+                    94.458,
+                    96.572,
+                    -43.365
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    91.181,
+                    91.888,
+                    -46.398
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.9003127402098908,
+            "siteInteraction": {
+                "position": [
+                    94.656,
+                    93.71,
+                    -46.719
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        }
+    ],
+    "waterSearchPoints": [
+        {
+            "ligandInteraction": {
+                "position": [
+                    92.259,
+                    98.057,
+                    -40.27
+                ],
+                "type": "DONOR"
+            },
+            "score": 0.7201240771637306,
+            "siteInteraction": {
+                "position": [
+                    89.704,
+                    98.842,
+                    -39.203
+                ],
+                "type": "ACCEPTOR"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    92.259,
+                    98.057,
+                    -40.27
+                ],
+                "type": "ACCEPTOR"
+            },
+            "score": 0.9734034461196943,
+            "siteInteraction": {
+                "position": [
+                    95.206,
+                    97.163,
+                    -40.497
+                ],
+                "type": "DONOR"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    92.317,
+                    88.042,
+                    -48.037
+                ],
+                "type": "DONOR"
+            },
+            "score": 0.20376688076186358,
+            "siteInteraction": {
+                "position": [
+                    94.21,
+                    85.773,
+                    -46.527
+                ],
+                "type": "ACCEPTOR"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    92.317,
+                    88.042,
+                    -48.037
+                ],
+                "type": "DONOR"
+            },
+            "score": 0.888317439706865,
+            "siteInteraction": {
+                "position": [
+                    90.807,
+                    88.122,
+                    -45.732
+                ],
+                "type": "ACCEPTOR"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    92.009,
+                    90.074,
+                    -41.375
+                ],
+                "type": "DONOR"
+            },
+            "score": 0.7981709457046654,
+            "siteInteraction": {
+                "position": [
+                    89.241,
+                    91.081,
+                    -42.805
+                ],
+                "type": "ACCEPTOR"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    92.009,
+                    90.074,
+                    -41.375
+                ],
+                "type": "ACCEPTOR"
+            },
+            "score": 0.9998151913568452,
+            "siteInteraction": {
+                "position": [
+                    93.536,
+                    90.002,
+                    -43.614
+                ],
+                "type": "DONOR"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    83.74,
+                    98.96,
+                    -42.357
+                ],
+                "type": "DONOR"
+            },
+            "score": 0.9998206240420537,
+            "siteInteraction": {
+                "position": [
+                    85.263,
+                    99.033,
+                    -40.186
+                ],
+                "type": "ACCEPTOR"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    83.74,
+                    98.96,
+                    -42.357
+                ],
+                "type": "ACCEPTOR"
+            },
+            "score": 0.2566483110123735,
+            "siteInteraction": {
+                "position": [
+                    80.805,
+                    98.991,
+                    -41.022
+                ],
+                "type": "DONOR"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    83.74,
+                    98.96,
+                    -42.357
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.6806487864358954,
+            "siteInteraction": {
+                "position": [
+                    80.329,
+                    96.989,
+                    -42.308
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    92.009,
+                    90.074,
+                    -41.375
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.6256045689498715,
+            "siteInteraction": {
+                "position": [
+                    93.579,
+                    91.848,
+                    -38.073
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    92.317,
+                    88.042,
+                    -48.037
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.683050623843226,
+            "siteInteraction": {
+                "position": [
+                    92.599,
+                    88.281,
+                    -51.954
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        },
+        {
+            "ligandInteraction": {
+                "position": [
+                    92.259,
+                    98.057,
+                    -40.27
+                ],
+                "type": "HYDROPHOBIC"
+            },
+            "score": 0.8540377046111026,
+            "siteInteraction": {
+                "position": [
+                    94.662,
+                    96.381,
+                    -38.267
+                ],
+                "type": "HYDROPHOBIC"
+            }
+        }
+    ]
+}

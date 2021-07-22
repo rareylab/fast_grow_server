@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
 from django.conf import settings
-from .models import Ligand, Interaction
+from .models import Ligand, SearchPointData
 
 
 class PreprocessorWrapper:
@@ -56,14 +56,9 @@ class PreprocessorWrapper:
             ligands = PreprocessorWrapper.load_ligands(path, cmplx)
 
         for ligand in ligands:
-            interactions_path = path.joinpath(ligand.name + '_interactions.json')
-            if interactions_path.exists():
-                PreprocessorWrapper.load_interactions(interactions_path, cmplx, ligand)
-
-            water_interactions_path = path.joinpath(ligand.name + '_water_interactions.json')
-            if water_interactions_path.exists():
-                PreprocessorWrapper.load_interactions(
-                    water_interactions_path, cmplx, ligand, water_interactions=True)
+            search_point_path = path.joinpath(ligand.name + '_search_points.json')
+            if search_point_path.exists():
+                PreprocessorWrapper.load_search_points(search_point_path, cmplx, ligand)
 
     @staticmethod
     def load_clean_complex(path, cmplx):
@@ -94,19 +89,14 @@ class PreprocessorWrapper:
         return ligands
 
     @staticmethod
-    def load_interactions(path, cmplx, ligand, water_interactions=False):
-        """Load interactions generated for the ligand and the complex"""
-        with open(path) as interaction_file:
-            data = json.load(interaction_file)
-        if 'interactions' not in data:
-            return
+    def load_search_points(path, cmplx, ligand):
+        """Load search points generated for the ligand and the complex"""
+        with open(path) as search_points_file:
+            data = json.load(search_points_file)
 
-        interactions = data['interactions']
-        for interaction in interactions:
-            interctn = Interaction(
-                json_interaction=json.dumps(interaction),
-                complex=cmplx,
-                ligand=ligand,
-                water_interaction=water_interactions
-            )
-            interctn.save()
+        search_point_data = SearchPointData(
+            data=json.dumps(data),
+            complex=cmplx,
+            ligand=ligand,
+        )
+        search_point_data.save()

@@ -1,4 +1,6 @@
-# Setup
+# FastGrow Server
+
+## Setup
 
 You may want to create a virtualenv for the fast\_grow\_server:
 ```bash
@@ -10,11 +12,15 @@ Install all requirements with pip:
 ```bash
 pip install -r requirements.txt
 ```
-The dependency psycopg-2 needs dev headers to build. Ensure you have "python3-dev" and "libpq".
+The dependency psycopg-2 needs dev headers to build. Ensure you have
+"python3-dev" and "libpq".
 
-At this point either set the environment variables `$USER`, `$PASSWORD` and `$DATABASE` to the ones configured in the `fast\_grow\_server/settings.py` or replace them with appropriate values below.
+At this point either set the environment variables `$USER`, `$PASSWORD` and
+`$DATABASE` to the ones configured in the `fast\_grow\_server/settings.py` or
+replace them with appropriate values below.
 
-fast\_grow\_server requires a postgres database and a separate database user. You can create a user with appropriate permissions with this:
+fast\_grow\_server requires a postgres database and a separate database user.
+You can create a user with appropriate permissions with this:
 ```bash
 psql -d postgres -c "CREATE ROLE $USER WITH ENCRYPTED PASSWORD '$PASSWORD'; ALTER ROLE $USER WITH LOGIN CREATEDB;"
 ```
@@ -31,7 +37,9 @@ python manage.py migrate
 Ensure the bin directory exists and contains the following binaries:
   - bin/preprocessor
 
-The default configured backend and result system for celery is redis. Redis must be installed and available at the url configured in the `fast\_grow\_server/settings.py`.
+The default configured backend and result system for celery is redis. Redis
+must be installed and available at the url configured in the
+`fast\_grow\_server/settings.py`.
 
 To run the tests execute:
 ```bash
@@ -53,3 +61,25 @@ python manage.py runserver
 ```
 ...which should start the server at http://localhost:8000/
 
+## Code Quality
+
+Contributions to the project must comply to the following quality criteria to
+keep the code maintainable for all developers:
+
+| Criteria               | Threshold     |
+| -------------          |:-------------:|
+| pylint                 | \>9.0         |
+| coverage (overall)     | \>90%         |
+| coverage (single file) | \>80%         |
+
+
+Run pylint for static code quality check with
+```bash
+find . -type f -name "*.py" | xargs pylint --load-plugins pylint_django --django-settings-module=fast_grow_server.settings
+```
+
+Run test coverage
+```bash
+coverage run --source=<path_to_app1>,<path_to_app2> manage.py test
+coverage report
+```

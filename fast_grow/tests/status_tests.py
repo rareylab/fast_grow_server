@@ -1,3 +1,4 @@
+"""Status enum tests"""
 from django.test import TestCase
 from fast_grow.models import Status
 

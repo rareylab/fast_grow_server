@@ -1,3 +1,4 @@
+"""Import test cases here for convenient test discovery"""
 from .complex_model_tests import ComplexModelTests
 from .ligand_model_tests import LigandModelTests
 from .status_tests import StatusTests

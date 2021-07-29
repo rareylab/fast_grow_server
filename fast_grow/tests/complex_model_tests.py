@@ -1,3 +1,4 @@
+"""Complex model tests"""
 from django.test import TestCase
 from fast_grow.models import Complex
 

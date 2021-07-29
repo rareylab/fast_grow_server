@@ -1,3 +1,4 @@
+"""Django view tests"""
 from datetime import datetime
 import json
 import os
@@ -25,6 +26,7 @@ class ViewTests(TestCase):
         self.assertEqual(response_json['status'], Status.to_string(Status.PENDING))
 
     def test_create_complex_with_ligand(self):
+        """Test the complex create route creates a complex model with a custom ligand"""
         with open(os.path.join(TEST_FILES, '4agm.pdb')) as complex_file:
             with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
                 response = self.client.post('/complex',
@@ -35,6 +37,7 @@ class ViewTests(TestCase):
         self.assertEqual(response_json['status'], Status.to_string(Status.PENDING))
 
     def test_create_complex_with_pdb_code(self):
+        """Test the complex create route creates a complex model with a pdb code"""
         response = self.client.post('/complex', {'pdb': '4agm'})
         self.assertEqual(response.status_code, 201)
         response_json = response.json()
@@ -42,6 +45,8 @@ class ViewTests(TestCase):
         self.assertEqual(response_json['status'], Status.to_string(Status.PENDING))
 
     def test_create_complex_with_pdb_code_and_ligand(self):
+        """Test the complex create route creates a complex model with a pdb code and a custom
+         ligand"""
         with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
             response = self.client.post('/complex', {'pdb': '4agm', 'ligand': ligand_file})
         self.assertEqual(response.status_code, 201)
@@ -50,22 +55,27 @@ class ViewTests(TestCase):
         self.assertEqual(response_json['status'], Status.to_string(Status.PENDING))
 
     def test_create_fail(self):
+        """Test complex create route failures"""
+        # must be post
         response = self.client.get('/complex')
         response_json = response.json()
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response_json['error'], 'bad request')
 
+        # no complex
         response = self.client.post('/complex', {})
         self.assertEqual(response.status_code, 400)
         response_json = response.json()
         self.assertEqual(response_json['error'], 'no complex specified')
 
+        # not a pdb file
         with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
             response = self.client.post('/complex', {'complex': ligand_file})
         self.assertEqual(response.status_code, 400)
         response_json = response.json()
         self.assertEqual(response_json['error'], 'complex is not a PDB file (.pdb)')
 
+        # ligand not an SD file
         with open(os.path.join(TEST_FILES, '4agm.pdb')) as complex_file:
             response = self.client.post('/complex',
                                         {'complex': complex_file, 'ligand': complex_file})
@@ -73,11 +83,13 @@ class ViewTests(TestCase):
         response_json = response.json()
         self.assertEqual(response_json['error'], 'ligand is not an SD file (.sdf)')
 
+        # invalid pdb code
         response = self.client.post('/complex', {'pdb': '!@#$'})
         self.assertEqual(response.status_code, 400)
         response_json = response.json()
         self.assertEqual(response_json['error'], 'invalid PDB code')
 
+        # pdb code that does not exist, or at least at time of writing
         response = self.client.post('/complex', {'pdb': '6666'})
         self.assertEqual(response.status_code, 404)
         response_json = response.json()
@@ -114,6 +126,7 @@ class ViewTests(TestCase):
         self.assertIn('search_point_data', response_json)
 
     def test_detail_fail(self):
+        """Test the complex detail route return 404 for an unknown complex"""
         response = self.client.get('/complex/{}'.format(404))
         self.assertEqual(response.status_code, 404)
         response_json = response.json()

@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
 from django.conf import settings
-from .models import Ligand, SearchPointData
+from fast_grow.models import Ligand, SearchPointData
 
 
 class PreprocessorWrapper:

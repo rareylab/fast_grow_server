@@ -1,7 +1,7 @@
 """fast_grow celery tasks"""
 from celery import shared_task
+from .tool_wrappers.preprocessor_wrapper import PreprocessorWrapper
 from .models import Complex, Status
-from .preprocessor_wrapper import PreprocessorWrapper
 
 
 @shared_task

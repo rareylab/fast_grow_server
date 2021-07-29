@@ -1,3 +1,4 @@
+"""Celery task tests"""
 from datetime import datetime
 import os
 import subprocess
@@ -59,11 +60,14 @@ class TaskTests(TestCase):
         # self.assertEqual(cmplx.interaction_set.filter(water_interaction=True).count(), 12)
 
     def test_preprocess_fail(self):
+        """Test the preprocessor failure states"""
+        # complex does not exist
         try:
-            preprocess_complex.run(404)
+            preprocess_complex.run(404404404404)
         except Complex.DoesNotExist as error:
             self.assertEqual(str(error), 'Complex matching query does not exist.')
 
+        # complex with two ligands (suggests already processed complex)
         with open(os.path.join(TEST_FILES, '4agm.pdb')) as complex_file:
             complex_string = complex_file.read()
         cmplx = Complex(

@@ -7,7 +7,7 @@ class LigandModelTests(TestCase):
     """Ligand model tests"""
 
     def test_write_temp(self):
-        """Test ligand tempfile is actually wriiten with the correct content and suffix"""
+        """Test ligand tempfile is actually written with the correct content and suffix"""
         ligand_string = 'test string'
         ligand = Ligand(name='test', file_type='sdf', file_string=ligand_string)
         ligand_file = ligand.write_temp()

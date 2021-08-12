@@ -7,7 +7,7 @@ class ComplexModelTests(TestCase):
     """Complex model tests"""
 
     def test_write_temp(self):
-        """Test complex tempfile is actually wriiten with the correct content and suffix"""
+        """Test complex tempfile is actually written with the correct content and suffix"""
         complex_string = 'test string'
         cmplx = Complex(name='test', file_type='pdb', file_string=complex_string)
         complex_file = cmplx.write_temp()

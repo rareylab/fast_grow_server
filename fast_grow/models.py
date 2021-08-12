@@ -114,3 +114,40 @@ class SearchPointData(models.Model):
             'ligand_id': self.ligand.id,
             'data': json.loads(self.data),
         }
+
+
+class Core(models.Model):
+    """Model representing a ligand core"""
+    ligand = models.ForeignKey(Ligand, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    anchor = models.IntegerField()
+    linker = models.IntegerField()
+    file_type = models.CharField(max_length=3, null=True)
+    file_string = models.TextField(null=True)
+    status = models.CharField(max_length=1, choices=Status.choices, default=Status.PENDING)
+
+    def dict(self):
+        """Convert core to a dictionary"""
+        core_dict = {
+            'id': self.id,
+            'ligand_id': self.ligand.id,
+            'name': self.name,
+            'anchor': self.anchor,
+            'linker': self.linker,
+            'status': Status.to_string(self.status)
+        }
+        if self.status == Status.SUCCESS:
+            core_dict['file_type'] = self.file_type
+            core_dict['file_string'] = self.file_string
+        return core_dict
+
+    def write_temp(self):
+        """Write a tempfile containing the core
+
+        :return core_file
+        """
+        filename = self.name + '.' + self.file_type
+        temp_file = NamedTemporaryFile(mode='w+', suffix=filename)
+        temp_file.write(self.file_string)
+        temp_file.seek(0)
+        return temp_file

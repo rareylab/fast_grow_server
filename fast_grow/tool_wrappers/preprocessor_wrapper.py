@@ -1,10 +1,11 @@
 """A django model friendly wrapper around the preprocessor binary"""
 import json
+import logging
 import os
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
-from django.conf import settings
+from fast_grow_server import settings
 from fast_grow.models import Ligand, SearchPointData
 
 
@@ -43,6 +44,7 @@ class PreprocessorWrapper:
         ]
         if ligand_file:
             args.extend(['--ligand', ligand_file.name])
+        logging.debug(' '.join(args))
         subprocess.check_call(args)
         return directory
 

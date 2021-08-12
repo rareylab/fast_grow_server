@@ -1,12 +1,9 @@
 """Django view tests"""
-from datetime import datetime
-import json
 import os
 from django.test import TestCase
-from fast_grow_server import celery_app, settings
-from fast_grow.models import Complex, Ligand, Status, SearchPointData
-
-TEST_FILES = os.path.join(settings.BASE_DIR, 'fast_grow', 'tests', 'test_files')
+from fast_grow_server import celery_app
+from fast_grow.models import Core, Status
+from .fixtures import TEST_FILES, create_test_complex, create_test_ligand
 
 
 class ViewTests(TestCase):
@@ -97,26 +94,7 @@ class ViewTests(TestCase):
 
     def test_detail_complex(self):
         """Test the complex detail route returns all information for a complex"""
-        with open(os.path.join(TEST_FILES, '4agm.pdb')) as complex_file:
-            complex_string = complex_file.read()
-        cmplx = Complex(
-            name='4agm', file_type='pdb', file_string=complex_string, accessed=datetime.now())
-        cmplx.save()
-
-        with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
-            ligand_string = ligand_file.read()
-        ligand = Ligand(name='P86_A_400', file_type='sdf', file_string=ligand_string, complex=cmplx)
-        ligand.save()
-
-        with open(os.path.join(TEST_FILES, 'P86_A_400_search_points.json')) as search_points_file:
-            data = json.load(search_points_file)
-        search_point_data = SearchPointData(
-            data=json.dumps(data),
-            ligand=ligand,
-            complex=cmplx
-        )
-        search_point_data.save()
-
+        cmplx = create_test_complex(Status.SUCCESS)
         response = self.client.get('/complex/{}'.format(cmplx.id))
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
@@ -128,6 +106,86 @@ class ViewTests(TestCase):
     def test_detail_fail(self):
         """Test the complex detail route return 404 for an unknown complex"""
         response = self.client.get('/complex/{}'.format(404))
+        self.assertEqual(response.status_code, 404)
+        response_json = response.json()
+        self.assertEqual(response_json['error'], 'model not found')
+
+    def test_core_create(self):
+        """Test the core create route creates a core based on a ligand"""
+        ligand = create_test_ligand()
+        response = self.client.post('/core', {'ligand_id': ligand.id, 'anchor': 18, 'linker': 2})
+        self.assertEqual(response.status_code, 201)
+        response_json = response.json()
+        core_name = ligand.name + '_18_2'
+        self.assertIn('id', response_json)
+        self.assertEqual(Status.to_string(Status.PENDING), response_json['status'])
+        self.assertEqual(core_name, response_json['name'])
+
+    def test_core_create_fail(self):
+        """Test core create failures"""
+        # must be post
+        response = self.client.get('/core')
+        response_json = response.json()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_json['error'], 'bad request')
+
+        # must contain ligand_id
+        response = self.client.post('/core')
+        response_json = response.json()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_json['error'], 'no ligand specified')
+
+        # ligand must exist
+        response = self.client.post('/core', {'ligand_id': 404})
+        response_json = response.json()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_json['error'], 'ligand does not exist')
+
+        ligand = create_test_ligand()
+
+        # must specify anchor and linker
+        response = self.client.post('/core', {'ligand_id': ligand.id})
+        response_json = response.json()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_json['error'], 'no "anchor" or linker specified')
+
+        # anchor and linker must be integers
+        response = self.client.post('/core', {'ligand_id': ligand.id, 'anchor': 'C', 'linker': 2})
+        response_json = response.json()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_json['error'], 'invalid anchor or linker specified')
+
+    def test_core_detail(self):
+        """Test the core detail route returns all information about the core"""
+        ligand = create_test_ligand()
+        with open(os.path.join(TEST_FILES, 'P86_A_400_18_2.sdf')) as core_file:
+            core_string = core_file.read()
+        core = Core(
+            name='P86_A_400_18_2',
+            ligand=ligand,
+            anchor=18,
+            linker=3,
+            file_string=core_string,
+            file_type='sdf',
+            status=Status.SUCCESS
+        )
+        core.save()
+
+        response = self.client.get('/core/{}'.format(core.id))
+        self.assertEqual(response.status_code, 200)
+        response_json = response.json()
+        self.assertIn('id', response_json)
+        self.assertIn('ligand_id', response_json)
+        self.assertIn('name', response_json)
+        self.assertIn('anchor', response_json)
+        self.assertIn('linker', response_json)
+        self.assertIn('status', response_json)
+        self.assertIn('file_type', response_json)
+        self.assertIn('file_string', response_json)
+
+    def test_core_detail_fail(self):
+        """Test the core detail route returns 404 for an unknown complex"""
+        response = self.client.get('/core/{}'.format(404))
         self.assertEqual(response.status_code, 404)
         response_json = response.json()
         self.assertEqual(response_json['error'], 'model not found')

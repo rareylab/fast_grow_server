@@ -75,11 +75,11 @@ keep the code maintainable for all developers:
 
 Run pylint for static code quality check with
 ```bash
-find . -type f -name "*.py" | xargs pylint --load-plugins pylint_django --django-settings-module=fast_grow_server.settings
+find fast_grow* -type f -name "*.py" | xargs pylint --load-plugins pylint_django --django-settings-module=fast_grow_server.settings
 ```
 
 Run test coverage
 ```bash
-coverage run --source=<path_to_app1>,<path_to_app2> manage.py test
+coverage run --source=fast_grow manage.py test
 coverage report
 ```

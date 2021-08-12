@@ -7,8 +7,8 @@ import urllib.error
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from fast_grow_server import settings
-from .models import Complex, Ligand
-from .tasks import preprocess_complex
+from .models import Complex, Core, Ligand
+from .tasks import preprocess_complex, clip_ligand
 
 
 @csrf_exempt
@@ -18,6 +18,7 @@ def complex_create(request):
     If a ligand is uploaded as well, this ligand is associated with the complex. Schedules a celery
     job to preprocess the complex.
     """
+    # this could be a decorator but I prefer the control
     if request.method != 'POST':
         return JsonResponse({'error': 'bad request'}, status=400)
 
@@ -84,3 +85,48 @@ def complex_detail(request, complex_id):
     except Complex.DoesNotExist:
         return JsonResponse({'error': 'model not found'}, status=404)
     return JsonResponse(cmplx.dict(detail=True), status=200, safe=False)
+
+
+@csrf_exempt
+def core_create(request):
+    """Create a core using a ligand"""
+    # this could be a decorator but I prefer the control
+    if request.method != 'POST':
+        return JsonResponse({'error': 'bad request'}, status=400)
+
+    if 'ligand_id' not in request.POST:
+        return JsonResponse({'error': 'no ligand specified'}, status=400)
+
+    try:
+        ligand = Ligand.objects.get(id=request.POST['ligand_id'])
+    except Ligand.DoesNotExist:
+        return JsonResponse({'error': 'ligand does not exist'}, status=400)
+
+    if 'anchor' not in request.POST or 'linker' not in request.POST:
+        return JsonResponse({'error': 'no "anchor" or linker specified'}, status=400)
+
+    try:
+        anchor = int(request.POST['anchor'])
+        linker = int(request.POST['linker'])
+    except ValueError:
+        return JsonResponse({'error': 'invalid anchor or linker specified'}, status=400)
+
+    core = Core(
+        ligand=ligand,
+        name=ligand.name + '_' + str(anchor) + '_' + str(linker),
+        anchor=anchor,
+        linker=linker
+    )
+    core.save()
+    clip_ligand.delay(core.id)
+    return JsonResponse(core.dict(), status=201, safe=False)
+
+
+@csrf_exempt
+def core_detail(request, core_id):
+    """Get detailed information of a core"""
+    try:
+        core = Core.objects.get(id=core_id)
+    except Core.DoesNotExist:
+        return JsonResponse({'error': 'model not found'}, status=404)
+    return JsonResponse(core.dict(), status=200, safe=False)

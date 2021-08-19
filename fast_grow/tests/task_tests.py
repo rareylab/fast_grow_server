@@ -6,6 +6,7 @@ from django.test import TestCase
 from fast_grow_server import settings
 from fast_grow.models import Complex, Core, Ligand, Status
 from fast_grow.tasks import preprocess_complex, clip_ligand
+from fast_grow.settings import PREPROCESSOR, CLIPPER
 from .fixtures import TEST_FILES, create_test_complex, create_test_ligand
 
 
@@ -14,7 +15,7 @@ class TaskTests(TestCase):
 
     def test_preprocessor_available(self):
         """Test the preprocessor binary exists at the correct location and is licensed"""
-        path = os.path.join(settings.BASE_DIR, 'bin', 'preprocessor')
+        path = PREPROCESSOR
         self.assertTrue(
             os.path.exists(path), 'Preprocessor binary does not exist at {}'.format(path))
         completed_process = subprocess.run(
@@ -72,7 +73,7 @@ class TaskTests(TestCase):
 
     def test_clipper_available(self):
         """Test the clipper binary exists at the correct location and is licensed"""
-        path = os.path.join(settings.BASE_DIR, 'bin', 'clipper')
+        path = CLIPPER
         self.assertTrue(
             os.path.exists(path), 'Clipper binary does not exist at {}'.format(path))
         completed_process = subprocess.run(

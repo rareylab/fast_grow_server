@@ -1,9 +1,8 @@
 """A django friendly wrapper around the clipper binary"""
-import os
 import logging
 import subprocess
 from tempfile import NamedTemporaryFile
-from fast_grow_server import settings
+from fast_grow.settings import CLIPPER
 
 
 class ClipperWrapper:
@@ -16,7 +15,7 @@ class ClipperWrapper:
         ligand_file = ligand.write_temp()
         temp_file = NamedTemporaryFile(mode='w+', suffix='.' + ligand.file_type)
         args = [
-            os.path.join(settings.BASE_DIR, 'bin', 'clipper'),
+            CLIPPER,
             '--ligand', ligand_file.name,
             '--clipped', temp_file.name,
             '--anchorposition', str(core.anchor),

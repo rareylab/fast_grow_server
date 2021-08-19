@@ -1,12 +1,11 @@
 """A django model friendly wrapper around the preprocessor binary"""
 import json
 import logging
-import os
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
-from fast_grow_server import settings
 from fast_grow.models import Ligand, SearchPointData
+from fast_grow.settings import PREPROCESSOR
 
 
 class PreprocessorWrapper:
@@ -38,7 +37,7 @@ class PreprocessorWrapper:
         # implicit zero case leaves ligand file at None
         directory = TemporaryDirectory()
         args = [
-            os.path.join(settings.BASE_DIR, 'bin', 'preprocessor'),
+            PREPROCESSOR,
             '--pocket', complex_file.name,
             '--outdir', directory.name,
         ]

@@ -3,7 +3,8 @@ import logging
 from celery import shared_task
 from .tool_wrappers.preprocessor_wrapper import PreprocessorWrapper
 from .tool_wrappers.clipper_wrapper import ClipperWrapper
-from .models import Complex, Core, Status
+from .tool_wrappers.fast_grow_wrapper import FastGrowWrapper
+from .models import Complex, Core, Status, Growing
 
 
 @shared_task
@@ -33,4 +34,19 @@ def clip_ligand(core_id):
         logging.error(error)
         core.status = Status.FAILURE
         core.save()
+        raise error
+
+
+@shared_task
+def grow(growing_id):
+    """perform a growing"""
+    growing = Growing.objects.get(id=growing_id)
+    try:
+        FastGrowWrapper.grow(growing)
+        growing.status = Status.SUCCESS
+        growing.save()
+    except Exception as error:
+        logging.error(error)
+        growing.status = Status.FAILURE
+        growing.save()
         raise error

@@ -1,7 +1,7 @@
 """fast_grow models"""
 import json
 import os
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from django.db import models
 
 
@@ -33,41 +33,46 @@ class Status:
         return None
 
 
-# TODO implement ensembles
-# class Ensemble(models.Model):
-#     """Model representing a complex ensemble"""
-#     accessed = models.DateField()
-#
-#     def write_temp(self):
-#         """Write a temp directory containing the ensemble
-#
-#         :return ensemble directory
-#         """
-#         directory = TemporaryDirectory()
-#         for protein in self.complex_set.all():
-#             protein.write_temp(temp_dir=directory.name)
-#         return directory
-#
-#     def dict(self, detail=False):
-#         """Convert ensemble to dict
-#
-#         :param detail create a detailed view of the growing (this can be quite large)
-#         :return ensemble_dict a dictionary containing members of the ensemble
-#         """
-#         return {
-#             'id': self.id,
-#             'complexes': [cmplx.dict(detail=detail) for cmplx in self.complex_set.all()]
-#         }
+class Ensemble(models.Model):
+    """Model representing a complex ensemble"""
+    accessed = models.DateField(auto_now=True)
+    # status of the job that will preprocess the complex
+    status = models.CharField(max_length=1, choices=Status.choices, default=Status.PENDING)
+
+    def write_temp(self):
+        """Write a temp directory containing the ensemble
+
+        :return ensemble directory
+        """
+        directory = TemporaryDirectory()
+        for protein in self.complex_set.all():
+            protein.write_temp(temp_dir=directory.name)
+        return directory
+
+    def dict(self, detail=False):
+        """Convert ensemble to dict
+
+        :param detail create a detailed view of the growing (this can be quite large)
+        :return ensemble_dict a dictionary containing members of the ensemble
+        """
+        ensemble_dict = {
+            'id': self.id,
+            'complexes': [cmplx.dict(detail=detail) for cmplx in self.complex_set.all()],
+            'ligands': [ligand.dict(detail=detail) for ligand in self.ligand_set.all()],
+            'status': Status.to_string(self.status)
+        }
+        if detail:
+            ensemble_dict['search_point_data'] = \
+                [search_point_data.dict() for search_point_data in self.searchpointdata_set.all()]
+        return ensemble_dict
 
 
 class Complex(models.Model):
     """Model representing a protein complex"""
-    # ensemble = models.ForeignKey(Ensemble, on_delete=models.CASCADE) TODO implement ensembles
+    ensemble = models.ForeignKey(Ensemble, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     file_type = models.CharField(max_length=3, null=True)
     file_string = models.TextField(null=True)
-    # status of the job that will preprocess the complex
-    status = models.CharField(max_length=1, choices=Status.choices, default=Status.PENDING)
 
     def dict(self, detail=False):
         """Convert complex to dictionary
@@ -77,15 +82,11 @@ class Complex(models.Model):
         """
         complex_dict = {
             'id': self.id,
-            'name': self.name,
-            'status': Status.to_string(self.status),
-            'ligands': [ligand.dict(detail=detail) for ligand in self.ligand_set.all()]
+            'name': self.name
         }
         if detail:
             complex_dict['file_type'] = self.file_type
             complex_dict['file_string'] = str(self.file_string)
-            complex_dict['search_point_data'] = \
-                [search_point_data.dict() for search_point_data in self.searchpointdata_set.all()]
         return complex_dict
 
     def write_temp(self, temp_dir=None):
@@ -109,7 +110,7 @@ class Complex(models.Model):
 
 class Ligand(models.Model):
     """Model representing a ligand in a complex"""
-    complex = models.ForeignKey(Complex, on_delete=models.CASCADE)
+    ensemble = models.ForeignKey(Ensemble, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     file_type = models.CharField(max_length=3)
     file_string = models.TextField()
@@ -122,7 +123,7 @@ class Ligand(models.Model):
         """
         ligand_dict = {
             'id': self.id,
-            'complex_id': self.complex.id,
+            'ensemble_id': self.ensemble.id,
             'name': self.name
         }
         if detail:
@@ -144,7 +145,7 @@ class Ligand(models.Model):
 
 class SearchPointData(models.Model):
     """Model representing a protein-ligand interaction"""
-    complex = models.ForeignKey(Complex, on_delete=models.CASCADE)
+    ensemble = models.ForeignKey(Ensemble, on_delete=models.CASCADE)
     ligand = models.ForeignKey(Ligand, on_delete=models.CASCADE)
     data = models.TextField()
 
@@ -152,7 +153,7 @@ class SearchPointData(models.Model):
         """Convert interaction to a dictionary"""
         return {
             'id': self.id,
-            'complex_id': self.complex.id,
+            'ensemble_id': self.ensemble.id,
             'ligand_id': self.ligand.id,
             'data': json.loads(self.data),
         }
@@ -214,8 +215,7 @@ class FragmentSet(models.Model):
 
 class Growing(models.Model):
     """Model representing a growing"""
-    # ensemble = models.ForeignKey(Ensemble, on_delete=models.CASCADE)
-    complex = models.ForeignKey(Complex, on_delete=models.CASCADE)
+    ensemble = models.ForeignKey(Ensemble, on_delete=models.CASCADE)
     core = models.ForeignKey(Core, on_delete=models.CASCADE)
     fragment_set = models.ForeignKey(FragmentSet, on_delete=models.CASCADE)
     search_points = models.TextField(null=True)
@@ -231,7 +231,7 @@ class Growing(models.Model):
         """
         growing_dict = {
             'id': self.id,
-            'complex': self.complex.dict(detail=detail),
+            'complex': self.ensemble.dict(detail=detail),
             'core': self.core.dict(detail=detail),
             'fragment_set': self.fragment_set.name,
             'search_points': json.loads(self.search_points) if self.search_points else None,

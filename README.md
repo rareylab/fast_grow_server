@@ -2,18 +2,11 @@
 
 ## Setup
 
-You may want to create a virtualenv for the fast\_grow\_server:
+Get python dependencies with [conda](https://docs.conda.io/en/latest/miniconda.html).
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+conda create --name fastgrow -c anaconda -c conda-forge python=3.8 django celery psycopg2 redis redis-py vine pylint pylint-django coverage
+conda activate fastgrow
 ```
-
-Install all requirements with pip:
-```bash
-pip install -r requirements.txt
-```
-The dependency psycopg-2 needs dev headers to build. Ensure you have
-"python3-dev" and "libpq".
 
 At this point either set the environment variables `$USER`, `$PASSWORD` and
 `$DATABASE` to the ones configured in the `fast\_grow\_server/settings.py` or
@@ -35,7 +28,10 @@ python manage.py migrate
 ```
 
 Ensure the bin directory exists and contains the following binaries:
-  - bin/preprocessor
+  - bin/Clipper
+  - bin/DatabaseBuilder
+  - bin/FastGrow
+  - bin/Preprocessor
 
 The default configured backend and result system for celery is redis. Redis
 must be installed and available at the url configured in the

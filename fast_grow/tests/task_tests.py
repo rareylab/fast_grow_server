@@ -2,10 +2,11 @@
 import os
 import subprocess
 from django.test import TestCase
-from fast_grow.models import Complex, Core, Growing, Ligand, Status
-from fast_grow.tasks import preprocess_complex, clip_ligand, grow
+from fast_grow.models import Complex, Core, Growing, Ligand, Status, Ensemble
+from fast_grow.tasks import preprocess_ensemble, clip_ligand, grow
 from fast_grow.settings import PREPROCESSOR, CLIPPER, FAST_GROW
-from .fixtures import TEST_FILES, create_test_complex, create_test_ligand, create_test_growing
+from .fixtures import TEST_FILES, multi_ensemble, single_ensemble, single_ensemble_with_ligand, \
+    test_ligand, test_growing, ensemble_growing
 
 
 class TaskTests(TestCase):
@@ -23,52 +24,66 @@ class TaskTests(TestCase):
         self.assertEqual(completed_process.returncode, 64,
                          'Preprocessor ran with unexpected error code. Is it licensed?')
 
-    def test_preprocess_complex(self):
+    def test_preprocess_ensemble(self):
+        """Test the preprocessor correctly processes an ensemble"""
+        ensemble = multi_ensemble()
+        preprocess_ensemble.run(ensemble.id)
+        ensemble = Ensemble.objects.get(id=ensemble.id)
+        self.assertEqual(ensemble.status, Status.SUCCESS)
+        self.assertEqual(ensemble.complex_set.count(), 2)
+        self.assertEqual(ensemble.ligand_set.count(), 1)
+        self.assertEqual(ensemble.searchpointdata_set.count(), 1)
+
+    def test_preprocess_single_ensemble(self):
         """Test the preprocessor correctly processes a complex file on it's own"""
-        cmplx = create_test_complex()
-        preprocess_complex.run(cmplx.id)
-        cmplx = Complex.objects.get(id=cmplx.id)
-        self.assertEqual(cmplx.status, Status.SUCCESS)
-        self.assertEqual(cmplx.ligand_set.count(), 2)
-        self.assertEqual(cmplx.searchpointdata_set.count(), 2)
+        ensemble = single_ensemble()
+        preprocess_ensemble.run(ensemble.id)
+        ensemble = Ensemble.objects.get(id=ensemble.id)
+        self.assertEqual(ensemble.status, Status.SUCCESS)
+        self.assertEqual(ensemble.complex_set.count(), 1)
+        self.assertEqual(ensemble.ligand_set.count(), 2)
+        self.assertEqual(ensemble.searchpointdata_set.count(), 2)
 
     def test_preprocess_complex_with_ligand(self):
         """Test the preprocessor correctly processes a complex with an explicitly set ligand"""
-        cmplx = create_test_complex(custom_ligand=True)
-        preprocess_complex.run(cmplx.id)
-        cmplx = Complex.objects.get(id=cmplx.id)
-        self.assertEqual(cmplx.status, Status.SUCCESS)
-        self.assertEqual(cmplx.ligand_set.count(), 1)
+        ensemble = single_ensemble_with_ligand()
+        preprocess_ensemble.run(ensemble.id)
+        ensemble = Ensemble.objects.get(id=ensemble.id)
+        self.assertEqual(ensemble.status, Status.SUCCESS)
+        self.assertEqual(ensemble.complex_set.count(), 1)
+        self.assertEqual(ensemble.ligand_set.count(), 1)
 
     def test_preprocess_fail(self):
         """Test the preprocessor failure states"""
         # complex does not exist
         try:
-            preprocess_complex.run(404)
-        except Complex.DoesNotExist as error:
-            self.assertEqual(str(error), 'Complex matching query does not exist.')
+            preprocess_ensemble.run(404)
+        except Ensemble.DoesNotExist as error:
+            self.assertEqual(str(error), 'Ensemble matching query does not exist.')
 
+        ensemble = Ensemble()
+        ensemble.save()
         # complex with two ligands (suggests already processed complex)
         with open(os.path.join(TEST_FILES, '4agm.pdb')) as complex_file:
             complex_string = complex_file.read()
         cmplx = Complex(
-            name='4agm', file_type='pdb', file_string=complex_string)
+            ensemble=ensemble, name='4agm', file_type='pdb', file_string=complex_string)
         cmplx.save()
 
         with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
             ligand_string = ligand_file.read()
         ligand = Ligand(
-            name='P86_A_400', file_type='sdf', file_string=ligand_string, complex=cmplx)
+            ensemble=ensemble, name='P86_A_400', file_type='sdf', file_string=ligand_string)
         ligand.save()
         ligand = Ligand(
-            name='P86_A_400', file_type='sdf', file_string=ligand_string, complex=cmplx)
+            ensemble=ensemble, name='P86_A_400', file_type='sdf', file_string=ligand_string)
         ligand.save()
         try:
-            preprocess_complex.run(cmplx.id)
+            preprocess_ensemble.run(ensemble.id)
         except Exception as error:
             self.assertEqual(str(error),
-                             'complex({}) to be processed has more than one ligand'.format(
-                                 cmplx.id))
+                             'ensemble({}) to be processed has more than one ligand'
+                             .format(ensemble.id))
 
     def test_clipper_available(self):
         """Test the clipper binary exists at the correct location and is licensed"""
@@ -82,7 +97,7 @@ class TaskTests(TestCase):
 
     def test_clip_ligand(self):
         """Test the clipper clips a ligand into a valid core"""
-        ligand = create_test_ligand()
+        ligand = test_ligand()
         core = Core(name='P86_A_400_18_2', ligand=ligand, anchor=18, linker=2)
         core.save()
 
@@ -94,7 +109,7 @@ class TaskTests(TestCase):
 
     def test_clip_fail(self):
         """Test the clipper fails using invalid anchor or linker positions"""
-        ligand = create_test_ligand()
+        ligand = test_ligand()
         core = Core(name='P86_A_400_18_2', ligand=ligand, anchor=18, linker=3)
         core.save()
         try:
@@ -114,7 +129,7 @@ class TaskTests(TestCase):
 
     def test_growing(self):
         """Test fast grow processes a growing"""
-        growing = create_test_growing()
+        growing = test_growing()
         try:
             grow.run(growing.id)
         finally:
@@ -130,33 +145,31 @@ class TaskTests(TestCase):
 
     def test_growing_with_search_points(self):
         """Test fast grow processes a growing with search points"""
-        growing = create_test_growing(search_points=True)
+        growing = test_growing()
         try:
             grow.run(growing.id)
         finally:
             subprocess.check_call(['dropdb', growing.fragment_set.name])
         growing = Growing.objects.get(id=growing.id)
-        # fewer hits due to search point filtering
-        self.assertEqual(growing.hit_set.count(), 6)
+        self.assertEqual(growing.hit_set.count(), 11)
         growing_dict = growing.dict()
         self.assertEqual(growing_dict['status'], 'success')
 
-    # def test_growing_with_ensemble(self):
-    #     """Test fast grow processes a growing using an ensemble"""
-    #     growing = create_test_growing(use_ensemble=True)
-    #     try:
-    #         grow.run(growing.id)
-    #     finally:
-    #         subprocess.check_call(['dropdb', growing.fragment_set.name])
-    #     growing = Growing.objects.get(id=growing.id)
-    #     print(growing.ensemble.dict())
-    #     self.assertEqual(growing.hit_set.count(), 11)
-    #     growing_dict = growing.dict()
-    #     self.assertEqual(growing_dict['status'], 'success')
+    def test_growing_with_ensemble(self):
+        """Test fast grow processes a growing using an ensemble"""
+        growing = ensemble_growing()
+        try:
+            grow.run(growing.id)
+        finally:
+            subprocess.check_call(['dropdb', growing.fragment_set.name])
+        growing = Growing.objects.get(id=growing.id)
+        self.assertEqual(growing.hit_set.count(), 11)
+        growing_dict = growing.dict()
+        self.assertEqual(growing_dict['status'], 'success')
 
     def test_growing_fail(self):
         """Test fast grow processes a growing"""
-        growing = create_test_growing()
+        growing = test_growing()
         growing.fragment_set.name = 'fake'
         growing.fragment_set.save()
         try:

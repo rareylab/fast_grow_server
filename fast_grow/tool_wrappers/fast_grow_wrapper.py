@@ -36,12 +36,8 @@ class FastGrowWrapper:
             '--port', DATABASES['default']['PORT'],
             '--host', DATABASES['default']['HOST']
         ]
-        if growing.complex:
-            complex_file = growing.complex.write_temp()
-            args.extend(['--pocket', complex_file.name])
-        elif growing.ensemble:
-            ensemble_dir = growing.ensemble.write_temp()
-            args.extend(['--ensemble', ensemble_dir.name])
+        ensemble_dir = growing.ensemble.write_temp()
+        args.extend(['--ensemble', ensemble_dir.name])
         if growing.search_points:
             search_points_file = FastGrowWrapper.write_temp_search_points(growing.search_points)
             args.extend(['--interactions', search_points_file.name])

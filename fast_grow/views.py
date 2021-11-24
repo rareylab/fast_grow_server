@@ -7,8 +7,8 @@ import urllib.error
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from fast_grow_server import settings
-from .models import Complex, Core, FragmentSet, Growing, Ligand
-from .tasks import preprocess_complex, clip_ligand, grow
+from .models import Complex, Core, FragmentSet, Growing, Ligand, Ensemble
+from .tasks import preprocess_ensemble, clip_ligand, grow
 
 
 @csrf_exempt
@@ -22,7 +22,24 @@ def complex_create(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'bad request'}, status=400)
 
-    if 'pdb' in request.POST:
+    ensemble = Ensemble()
+    ensemble.save()
+    if 'ensemble[]' in request.FILES:
+        for complex_file in request.FILES.pop('ensemble[]'):
+            complex_filename, complex_extension = os.path.splitext(complex_file.name)
+            if complex_extension != '.pdb':
+                return JsonResponse({'error': 'complex is not a PDB file (.pdb)'}, status=400)
+
+            complex_name = os.path.basename(complex_filename)[:255]  # name has max size of 255
+            complex_string = complex_file.read().decode('utf8')
+            cmplx = Complex(
+                name=complex_name,
+                file_type=complex_extension[1:],  # remove period at the beginning of the extension
+                file_string=complex_string,
+                ensemble=ensemble
+            )
+            cmplx.save()
+    elif 'pdb' in request.POST:
         pdb_code = request.POST['pdb'].lower()
         if not re.match(r'[a-z0-9]{4}', pdb_code):
             return JsonResponse({'error': 'invalid PDB code'}, status=400)
@@ -40,23 +57,13 @@ def complex_create(request):
             name=pdb_code,
             file_type='pdb',
             file_string=complex_string,
+            ensemble=ensemble
         )
-    elif 'complex' in request.FILES:
-        complex_filename, complex_extension = os.path.splitext(request.FILES['complex'].name)
-        if complex_extension != '.pdb':
-            return JsonResponse({'error': 'complex is not a PDB file (.pdb)'}, status=400)
-
-        complex_name = os.path.basename(complex_filename)[:255]  # name has max size of 255
-        complex_string = request.FILES['complex'].read().decode('utf8')
-        cmplx = Complex(
-            name=complex_name,
-            file_type=complex_extension[1:],  # remove period at the beginning of the extension
-            file_string=complex_string
-        )
+        cmplx.save()
+        ensemble.complex_set.add(cmplx)
     else:
         return JsonResponse({'error': 'no complex specified'}, status=400)
 
-    cmplx.save()
     if 'ligand' in request.FILES:
         ligand_filename, ligand_extension = os.path.splitext(request.FILES['ligand'].name)
         if ligand_extension != '.sdf':
@@ -68,21 +75,21 @@ def complex_create(request):
             name=ligand_name,
             file_type=ligand_extension[1:],  # remove period
             file_string=ligand_string,
-            complex=cmplx
+            ensemble=ensemble
         )
         ligand.save()
-    preprocess_complex.delay(cmplx.id)
-    return JsonResponse(cmplx.dict(), status=201, safe=False)
+    preprocess_ensemble.delay(ensemble.id)
+    return JsonResponse(ensemble.dict(), status=201, safe=False)
 
 
 @csrf_exempt
-def complex_detail(request, complex_id):
+def complex_detail(request, ensemble_id):
     """Get detailed information of a complex"""
     try:
-        cmplx = Complex.objects.get(id=complex_id)
-    except Complex.DoesNotExist:
+        ensemble = Ensemble.objects.get(id=ensemble_id)
+    except Ensemble.DoesNotExist:
         return JsonResponse({'error': 'model not found'}, status=404)
-    return JsonResponse(cmplx.dict(detail=True), status=200, safe=False)
+    return JsonResponse(ensemble.dict(detail=True), status=200, safe=False)
 
 
 @csrf_exempt
@@ -145,7 +152,7 @@ def growing_create(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'bad request'}, status=400)
 
-    if 'complex' not in request_json:
+    if 'ensemble' not in request_json:
         return JsonResponse({'error': 'no complex specified'}, status=400)
 
     if 'core' not in request_json:
@@ -155,7 +162,7 @@ def growing_create(request):
         return JsonResponse({'error': 'no fragment set specified'}, status=400)
 
     try:
-        cmplx = Complex.objects.get(id=int(request_json['complex']))
+        ensemble = Ensemble.objects.get(id=int(request_json['ensemble']))
         core = Core.objects.get(id=int(request_json['core']))
         fragment_set = FragmentSet.objects.get(id=int(request_json['fragment_set']))
     except ValueError:
@@ -172,10 +179,10 @@ def growing_create(request):
         search_points = request_json['search_points']
 
     growing = Growing(
-        complex=cmplx,
+        ensemble=ensemble,
         core=core,
         fragment_set=fragment_set,
-        search_points=json.dumps(search_points)
+        search_points=json.dumps(search_points) if search_points else None
     )
     growing.save()
     grow.delay(growing.id)

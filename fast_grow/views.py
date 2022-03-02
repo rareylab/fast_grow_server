@@ -7,8 +7,8 @@ import urllib.error
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from fast_grow_server import settings
-from .models import Complex, Core, FragmentSet, Growing, Ligand, Ensemble
-from .tasks import preprocess_ensemble, clip_ligand, grow
+from .models import Complex, Core, FragmentSet, Growing, Ligand, Ensemble, SearchPointData
+from .tasks import preprocess_ensemble, clip_ligand, grow, generate_interactions
 
 
 @csrf_exempt
@@ -142,6 +142,49 @@ def core_detail(request, core_id):
 
 
 @csrf_exempt
+def interactions_create(request):
+    """Generate interactions for specified ligand and complex"""
+    # this could be a decorator but I prefer the control
+    if request.method != 'POST' or request.content_type != 'application/json':
+        return JsonResponse({'error': 'bad request'}, status=400)
+    try:
+        request_json = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'bad request'}, status=400)
+
+    if 'ligand_id' not in request_json:
+        return JsonResponse({'error': 'no ligand specified'}, status=400)
+
+    try:
+        ligand = Ligand.objects.get(id=request_json['ligand_id'])
+    except Ligand.DoesNotExist:
+        return JsonResponse({'error': 'ligand does not exist'}, status=400)
+
+    if 'complex_id' not in request_json:
+        return JsonResponse({'error': 'no complex specified'}, status=400)
+
+    try:
+        cmplx = Complex.objects.get(id=request_json['complex_id'])
+    except Complex.DoesNotExist:
+        return JsonResponse({'error': 'complex does not exist'}, status=400)
+
+    search_point_data = SearchPointData(ligand=ligand, complex=cmplx)
+    search_point_data.save()
+    generate_interactions.delay(search_point_data.id)
+    return JsonResponse(search_point_data.dict(), status=201, safe=False)
+
+
+@csrf_exempt
+def interactions_detail(request, search_point_data_id):
+    """Get detailed interaction data"""
+    try:
+        search_point_data = SearchPointData.objects.get(id=search_point_data_id)
+    except SearchPointData.DoesNotExist:
+        return JsonResponse({'error': 'model not found'}, status=404)
+    return JsonResponse(search_point_data.dict(detail=True), status=200, safe=False)
+
+
+@csrf_exempt
 def growing_create(request):
     """Create a growing"""
     # this could be a decorator but I prefer the control
@@ -201,3 +244,8 @@ def growing_detail(request, growing_id):
     except Growing.DoesNotExist:
         return JsonResponse({'error': 'model not found'}, status=404)
     return JsonResponse(growing.dict(detail=detail, nof_hits=nof_hits), status=200, safe=False)
+
+
+def fragment_set_index(request):
+    """Get an index of fragment sets"""
+    return JsonResponse([fragment_set.dict() for fragment_set in FragmentSet.objects.all()], status=200, safe=False)

@@ -6,7 +6,7 @@ from django.test import TestCase
 from fast_grow_server import celery_app
 from fast_grow.models import Core, Status
 from .fixtures import TEST_FILES, processed_single_ensemble, test_ligand, test_core, \
-    test_fragment_set, processed_growing
+    test_fragment_set, processed_growing, processed_search_points
 
 
 class ViewTests(TestCase):
@@ -200,6 +200,32 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 404)
         response_json = response.json()
         self.assertEqual(response_json['error'], 'model not found')
+
+    def test_interactions_create(self):
+        ensemble = processed_single_ensemble()
+        response = self.client.post(
+            '/interactions',
+            data={
+                'ligand_id': ensemble.ligand_set.first().id,
+                'complex_id': ensemble.complex_set.first().id
+            },
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 201)
+        response_json = response.json()
+        self.assertIn('id', response_json)
+        self.assertEqual(Status.to_string(Status.PENDING), response_json['status'])
+
+    def test_interactions_detail(self):
+        search_point_data = processed_search_points()
+        response = self.client.get('/interactions/{}'.format(search_point_data.id))
+        self.assertEqual(response.status_code, 200)
+        response_json = response.json()
+        self.assertIn('id', response_json)
+        self.assertIn('ligand_id', response_json)
+        self.assertIn('complex_id', response_json)
+        self.assertIn('data', response_json)
+        self.assertIn('status', response_json)
 
     def test_growing_create(self):
         """Test the growing create route creates and starts a growing"""

@@ -77,14 +77,6 @@ def processed_single_ensemble():
     ligand = Ligand(name='P86_A_400', file_type='sdf', file_string=ligand_string, ensemble=ensemble)
     ligand.save()
 
-    with open(os.path.join(TEST_FILES, 'P86_A_400_search_points.json')) as search_points_file:
-        data = json.load(search_points_file)
-    search_point_data = SearchPointData(
-        data=json.dumps(data),
-        ligand=ligand,
-        ensemble=ensemble
-    )
-    search_point_data.save()
     return ensemble
 
 
@@ -147,6 +139,21 @@ def test_core(ligand):
     )
     core.save()
     return core
+
+
+def processed_search_points():
+    """Create a set of processed search points"""
+    ensemble = processed_single_ensemble()
+    with open(os.path.join(TEST_FILES, 'P86_A_400_search_points.json')) as search_point_file:
+        data = search_point_file.read()
+    search_point_data = SearchPointData(
+        ligand=ensemble.ligand_set.first(),
+        complex=ensemble.complex_set.first(),
+        data=data,
+        status=Status.SUCCESS
+    )
+    search_point_data.save()
+    return search_point_data
 
 
 def test_fragment_set():

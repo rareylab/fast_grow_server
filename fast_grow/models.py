@@ -52,7 +52,7 @@ class Ensemble(models.Model):
     def dict(self, detail=False):
         """Convert ensemble to dict
 
-        :param detail create a detailed view of the growing (this can be quite large)
+        :param detail create a detailed view of the ensemble (this can be quite large)
         :return ensemble_dict a dictionary containing members of the ensemble
         """
         ensemble_dict = {
@@ -61,9 +61,6 @@ class Ensemble(models.Model):
             'ligands': [ligand.dict(detail=detail) for ligand in self.ligand_set.all()],
             'status': Status.to_string(self.status)
         }
-        if detail:
-            ensemble_dict['search_point_data'] = \
-                [search_point_data.dict() for search_point_data in self.searchpointdata_set.all()]
         return ensemble_dict
 
 
@@ -145,18 +142,22 @@ class Ligand(models.Model):
 
 class SearchPointData(models.Model):
     """Model representing a protein-ligand interaction"""
-    ensemble = models.ForeignKey(Ensemble, on_delete=models.CASCADE)
+    complex = models.ForeignKey(Complex, on_delete=models.CASCADE)
     ligand = models.ForeignKey(Ligand, on_delete=models.CASCADE)
-    data = models.TextField()
+    data = models.TextField(null=True)
+    status = models.CharField(max_length=1, choices=Status.choices, default=Status.PENDING)
 
-    def dict(self):
+    def dict(self, detail=False):
         """Convert interaction to a dictionary"""
-        return {
+        search_point_dict = {
             'id': self.id,
-            'ensemble_id': self.ensemble.id,
+            'complex_id': self.complex.id,
             'ligand_id': self.ligand.id,
-            'data': json.loads(self.data),
+            'status': Status.to_string(self.status)
         }
+        if detail:
+            search_point_dict['data'] = json.loads(self.data) if self.data else None
+        return search_point_dict
 
 
 class Core(models.Model):

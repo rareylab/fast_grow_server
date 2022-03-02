@@ -1,10 +1,9 @@
 """A django model friendly wrapper around the preprocessor binary"""
-import json
 import logging
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
-from fast_grow.models import Ligand, SearchPointData, Complex
+from fast_grow.models import Ligand, Complex
 from fast_grow.settings import PREPROCESSOR
 
 
@@ -56,16 +55,10 @@ class PreprocessorWrapper:
         """Load all results into the database"""
         PreprocessorWrapper.load_complexes(path, ensemble)
         if ensemble.ligand_set.count() == 1:
-            ligand = ensemble.ligand_set.first()
-            search_point_path = path.joinpath(ligand.name + '_search_points.json')
-            PreprocessorWrapper.load_search_points(search_point_path, ensemble, ligand)
+            # no need to load ligands
             return
 
-        ligands = PreprocessorWrapper.load_ligands(path, ensemble)
-        for ligand in ligands:
-            search_point_path = path.joinpath(ligand.name + '_search_points.json')
-            if search_point_path.exists():
-                PreprocessorWrapper.load_search_points(search_point_path, ensemble, ligand)
+        PreprocessorWrapper.load_ligands(path, ensemble)
 
     @staticmethod
     def load_complexes(path, ensemble):
@@ -80,11 +73,7 @@ class PreprocessorWrapper:
 
     @staticmethod
     def load_ligands(path, ensemble):
-        """Load all ligands extracted by the preprocessor binary
-
-        :return ligands ligand models for the extracted ligands
-        """
-        ligands = []
+        """Load all ligands extracted by the preprocessor binary"""
         sd_files = list(path.glob('*.sdf'))
         for sd_file in sd_files:
             with sd_file.open() as ligand_file:
@@ -92,18 +81,3 @@ class PreprocessorWrapper:
             ligand = Ligand(
                 ensemble=ensemble, name=sd_file.stem, file_type='sdf', file_string=ligand_string)
             ligand.save()
-            ligands.append(ligand)
-        return ligands
-
-    @staticmethod
-    def load_search_points(path, ensemble, ligand):
-        """Load search points generated for the ligand"""
-        with open(path) as search_points_file:
-            data = json.load(search_points_file)
-
-        search_point_data = SearchPointData(
-            data=json.dumps(data),
-            ensemble=ensemble,
-            ligand=ligand,
-        )
-        search_point_data.save()

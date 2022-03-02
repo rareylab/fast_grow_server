@@ -2,9 +2,9 @@
 import os
 import subprocess
 from django.test import TestCase
-from fast_grow.models import Complex, Core, Growing, Ligand, Status, Ensemble
-from fast_grow.tasks import preprocess_ensemble, clip_ligand, grow
-from fast_grow.settings import PREPROCESSOR, CLIPPER, FAST_GROW
+from fast_grow.models import Complex, Core, Growing, Ligand, SearchPointData, Status, Ensemble
+from fast_grow.tasks import preprocess_ensemble, clip_ligand, grow, generate_interactions
+from fast_grow.settings import PREPROCESSOR, CLIPPER, INTERACTIONS, FAST_GROW
 from .fixtures import TEST_FILES, multi_ensemble, single_ensemble, single_ensemble_with_ligand, \
     test_ligand, test_growing, ensemble_growing
 
@@ -32,7 +32,6 @@ class TaskTests(TestCase):
         self.assertEqual(ensemble.status, Status.SUCCESS)
         self.assertEqual(ensemble.complex_set.count(), 2)
         self.assertEqual(ensemble.ligand_set.count(), 1)
-        self.assertEqual(ensemble.searchpointdata_set.count(), 1)
 
     def test_preprocess_single_ensemble(self):
         """Test the preprocessor correctly processes a complex file on it's own"""
@@ -42,7 +41,6 @@ class TaskTests(TestCase):
         self.assertEqual(ensemble.status, Status.SUCCESS)
         self.assertEqual(ensemble.complex_set.count(), 1)
         self.assertEqual(ensemble.ligand_set.count(), 2)
-        self.assertEqual(ensemble.searchpointdata_set.count(), 2)
 
     def test_preprocess_complex_with_ligand(self):
         """Test the preprocessor correctly processes a complex with an explicitly set ligand"""
@@ -117,6 +115,16 @@ class TaskTests(TestCase):
         except subprocess.CalledProcessError as error:
             self.assertEqual(70, error.returncode)
 
+    def test_interactions_available(self):
+        """Test the clipper binary exists at the correct location and is licensed"""
+        self.assertTrue(os.path.exists(INTERACTIONS),
+                        'Interaction generator binary does not exist at {}'.format(CLIPPER))
+        completed_process = subprocess.run(
+            INTERACTIONS, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+        # 64 == ArgumentError, which means the preprocessor is ready to accept arguments
+        self.assertEqual(completed_process.returncode, 64,
+                         'Interaction generator ran with unexpected error code. Is it licensed?')
+
     def test_fast_grow_available(self):
         """Test the fast grow binary exists and is licensed"""
         self.assertTrue(
@@ -126,6 +134,17 @@ class TaskTests(TestCase):
         # 64 == ArgumentError, which means the preprocessor is ready to accept arguments
         self.assertEqual(completed_process.returncode, 64,
                          'Fast Grow ran with unexpected error code. Is it licensed?')
+
+    def test_interactions(self):
+        """Test generating interactions"""
+        ensemble = single_ensemble_with_ligand()
+        search_point_data = SearchPointData(
+            ligand=ensemble.ligand_set.first(), complex=ensemble.complex_set.first())
+        search_point_data.save()
+        generate_interactions.run(search_point_data.id)
+        search_point_data = SearchPointData.objects.get(id=search_point_data.id)
+        self.assertEqual(search_point_data.status, Status.SUCCESS)
+        self.assertIsNotNone(search_point_data.data)
 
     def test_growing(self):
         """Test fast grow processes a growing"""

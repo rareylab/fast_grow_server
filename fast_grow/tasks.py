@@ -4,7 +4,8 @@ from celery import shared_task
 from .tool_wrappers.preprocessor_wrapper import PreprocessorWrapper
 from .tool_wrappers.clipper_wrapper import ClipperWrapper
 from .tool_wrappers.fast_grow_wrapper import FastGrowWrapper
-from .models import Ensemble, Core, Status, Growing
+from .tool_wrappers.interactions_wrapper import InteractionWrapper
+from .models import Ensemble, Core, SearchPointData, Status, Growing
 
 
 @shared_task
@@ -34,6 +35,21 @@ def clip_ligand(core_id):
         logging.error(error)
         core.status = Status.FAILURE
         core.save()
+        raise error
+
+
+@shared_task
+def generate_interactions(search_point_id):
+    """generate interactions search points for a ligand and complex"""
+    search_point_data = SearchPointData.objects.get(id=search_point_id)
+    try:
+        InteractionWrapper.generate(search_point_data)
+        search_point_data.status = Status.SUCCESS
+        search_point_data.save()
+    except Exception as error:
+        logging.error(error)
+        search_point_data.status = Status.FAILURE
+        search_point_data.save()
         raise error
 
 

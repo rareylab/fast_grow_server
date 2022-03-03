@@ -152,9 +152,9 @@ class TaskTests(TestCase):
         try:
             grow.run(growing.id)
         finally:
-            subprocess.check_call(['dropdb', growing.fragment_set.name])
+            subprocess.check_call(['dropdb', '-h' 'localhost', growing.fragment_set.name])
         growing = Growing.objects.get(id=growing.id)
-        self.assertEqual(growing.hit_set.count(), 11)
+        self.assertEqual(growing.hit_set.count(), 10)
         growing_dict = growing.dict(detail=True)
         self.assertEqual(growing_dict['status'], 'success')
         self.assertEqual(
@@ -168,9 +168,9 @@ class TaskTests(TestCase):
         try:
             grow.run(growing.id)
         finally:
-            subprocess.check_call(['dropdb', growing.fragment_set.name])
+            subprocess.check_call(['dropdb', '-h', 'localhost', growing.fragment_set.name])
         growing = Growing.objects.get(id=growing.id)
-        self.assertEqual(growing.hit_set.count(), 11)
+        self.assertEqual(growing.hit_set.count(), 10)
         growing_dict = growing.dict()
         self.assertEqual(growing_dict['status'], 'success')
 
@@ -180,9 +180,9 @@ class TaskTests(TestCase):
         try:
             grow.run(growing.id)
         finally:
-            subprocess.check_call(['dropdb', growing.fragment_set.name])
+            subprocess.check_call(['dropdb', '-h', 'localhost', growing.fragment_set.name])
         growing = Growing.objects.get(id=growing.id)
-        self.assertEqual(growing.hit_set.count(), 11)
+        self.assertEqual(growing.hit_set.count(), 10)
         growing_dict = growing.dict()
         self.assertEqual(growing_dict['status'], 'success')
 
@@ -197,4 +197,4 @@ class TaskTests(TestCase):
             growing = Growing.objects.get(id=growing.id)
             self.assertEqual(growing.status, Status.FAILURE)
         finally:
-            subprocess.check_call(['dropdb', 'test_fragment_set'])
+            subprocess.check_call(['dropdb', '-h', 'localhost', 'test_fragment_set'])

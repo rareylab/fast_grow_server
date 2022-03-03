@@ -4,7 +4,7 @@
 
 Get python dependencies with [conda](https://docs.conda.io/en/latest/miniconda.html).
 ```bash
-conda create --name fastgrow -c anaconda -c conda-forge python=3.8 django celery psycopg2 redis redis-py vine pylint pylint-django coverage
+conda create --name fastgrow -c anaconda -c conda-forge python=3.9 django celery psycopg2 redis redis-py vine pylint pylint-django coverage
 conda activate fastgrow
 ```
 

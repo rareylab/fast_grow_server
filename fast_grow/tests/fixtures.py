@@ -160,8 +160,19 @@ def test_fragment_set():
     """Create a test fragment set"""
     fragment_set_name = 'test_fragment_set'
     fragment_set_path = os.path.join(TEST_FILES, 'test_fragment_set.tar')
-    subprocess.check_call(['createdb', fragment_set_name])
-    subprocess.check_call(['pg_restore', '-d', fragment_set_name, fragment_set_path])
+    subprocess.check_call([
+        'createdb',
+        '-h', settings.DATABASES['default']['HOST'],
+        '-U', settings.DATABASES['default']['USER'],
+        fragment_set_name
+    ])
+    subprocess.check_call([
+        'pg_restore',
+        '-h', settings.DATABASES['default']['HOST'],
+        '-U', settings.DATABASES['default']['USER'],
+        '-n', 'public',  # Only restore data from the public schema. Something in the dump seems to be outside that.
+        '-d', fragment_set_name, fragment_set_path
+    ])
     fragment_set = FragmentSet(name=fragment_set_name)
     fragment_set.save()
     return fragment_set

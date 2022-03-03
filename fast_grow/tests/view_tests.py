@@ -240,7 +240,7 @@ class ViewTests(TestCase):
                 content_type='application/json'
             )
         finally:
-            subprocess.check_call(['dropdb', fragment_set.name])
+            subprocess.check_call(['dropdb', '-h', 'localhost', fragment_set.name])
         self.assertEqual(response.status_code, 201)
         response_json = response.json()
         self.assertIn('id', response_json)
@@ -270,7 +270,7 @@ class ViewTests(TestCase):
                 }),
                 content_type='application/json')
         finally:
-            subprocess.check_call(['dropdb', fragment_set.name])
+            subprocess.check_call(['dropdb', '-h', 'localhost', fragment_set.name])
         self.assertEqual(response.status_code, 201)
         response_json = response.json()
         self.assertIn('id', response_json)
@@ -330,7 +330,7 @@ class ViewTests(TestCase):
                 'nof_hits': nof_hits
             })
         finally:
-            subprocess.check_call(['dropdb', growing.fragment_set.name])
+            subprocess.check_call(['dropdb', '-h', 'localhost', growing.fragment_set.name])
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
         self.assertIn('id', response_json)
@@ -358,4 +358,4 @@ class ViewTests(TestCase):
             response_json = response.json()
             self.assertEqual(response_json['error'], 'invalid value for nof_hits')
         finally:
-            subprocess.check_call(['dropdb', growing.fragment_set.name])
+            subprocess.check_call(['dropdb', '-h', 'localhost', growing.fragment_set.name])

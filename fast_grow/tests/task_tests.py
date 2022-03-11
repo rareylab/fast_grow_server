@@ -6,7 +6,7 @@ from fast_grow.models import Complex, Core, Growing, Ligand, SearchPointData, St
 from fast_grow.tasks import preprocess_ensemble, clip_ligand, grow, generate_interactions
 from fast_grow.settings import PREPROCESSOR, CLIPPER, INTERACTIONS, FAST_GROW
 from .fixtures import TEST_FILES, multi_ensemble, single_ensemble, single_ensemble_with_ligand, \
-    test_ligand, test_growing, ensemble_growing
+    test_ligand, test_growing, search_point_growing, ensemble_growing
 
 
 class TaskTests(TestCase):
@@ -164,7 +164,7 @@ class TaskTests(TestCase):
 
     def test_growing_with_search_points(self):
         """Test fast grow processes a growing with search points"""
-        growing = test_growing()
+        growing = search_point_growing()
         try:
             grow.run(growing.id)
         finally:
@@ -185,6 +185,7 @@ class TaskTests(TestCase):
         self.assertEqual(growing.hit_set.count(), 10)
         growing_dict = growing.dict()
         self.assertEqual(growing_dict['status'], 'success')
+        self.assertEqual(len(growing_dict['hits'][0]['ensemble_scores']), growing.ensemble.complex_set.count())
 
     def test_growing_fail(self):
         """Test fast grow processes a growing"""

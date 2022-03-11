@@ -94,7 +94,7 @@ def processed_ensemble():
     with open(os.path.join(TEST_FILES, '4agn_clean.pdb')) as complex_file:
         complex_string_4agn = complex_file.read()
     complex_4agn = \
-        Complex(ensemble=ensemble, name='4agm', file_type='pdb', file_string=complex_string_4agn)
+        Complex(ensemble=ensemble, name='4agn', file_type='pdb', file_string=complex_string_4agn)
     complex_4agn.save()
 
     with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
@@ -107,7 +107,7 @@ def processed_ensemble():
     search_point_data = SearchPointData(
         data=json.dumps(data),
         ligand=ligand,
-        ensemble=ensemble
+        complex=complex_4agm
     )
     search_point_data.save()
     return ensemble
@@ -188,9 +188,33 @@ def test_growing():
     return growing
 
 
+def search_point_growing():
+    """Create a test growing"""
+    ensemble = processed_single_ensemble()
+    core = test_core(ensemble.ligand_set.first())
+    fragment_set = test_fragment_set()
+    search_point = """
+{
+    "type": "MATCH",
+    "mode": "INCLUDE",
+    "radius": 3,
+    "searchPoint": {
+      "position": [
+        91.181,
+        91.888,
+        -46.398
+      ],
+      "type": "HYDROPHOBIC"
+    }
+}"""
+    growing = Growing(ensemble=ensemble, core=core, fragment_set=fragment_set, search_points=search_point)
+    growing.save()
+    return growing
+
+
 def ensemble_growing():
     """Create a test ensemble growing"""
-    ensemble = processed_single_ensemble()
+    ensemble = processed_ensemble()
     core = test_core(ensemble.ligand_set.first())
     fragment_set = test_fragment_set()
     growing = Growing(ensemble=ensemble, core=core, fragment_set=fragment_set)
@@ -206,6 +230,6 @@ def processed_growing():
     growing = Growing(ensemble=ensemble, core=core, fragment_set=fragment_set)
     growing.save()
     for i in range(5):
-        hit = Hit(growing=growing, name='hit' + str(i), score=0.0, file_type='sdf', file_string='')
+        hit = Hit(growing=growing, name='hit' + str(i), score=0.0, file_type='sdf', file_string='', ensemble_scores={})
         hit.save()
     return growing

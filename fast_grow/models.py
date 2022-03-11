@@ -250,6 +250,7 @@ class Hit(models.Model):
     growing = models.ForeignKey(Growing, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     score = models.FloatField()
+    ensemble_scores = models.JSONField()
     file_type = models.CharField(max_length=3)
     file_string = models.TextField()
 
@@ -260,5 +261,6 @@ class Hit(models.Model):
             'name': self.name,
             'score': self.score,
             'file_type': self.file_type,
-            'file_string': self.file_string
+            'file_string': self.file_string,
+            'ensemble_scores': self.ensemble_scores
         }

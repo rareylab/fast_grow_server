@@ -41,7 +41,7 @@ class FastGrowWrapper:
         if growing.search_points:
             search_points_file = FastGrowWrapper.write_temp_search_points(growing.search_points)
             args.extend(['--interactions', search_points_file.name])
-        logging.debug(' '.join(args))
+        logging.info(' '.join(args))
         full_args = args + ['--password', DATABASES['default']['PASSWORD']]
         process = subprocess.Popen(full_args)
         seen = set()
@@ -81,14 +81,20 @@ class FastGrowWrapper:
             data = hits_file.read()
         mol_strings = [m + '$$$$\n' for m in data.split('$$$$\n') if m.strip()]
         for mol_string in mol_strings:
-            hit_name = FastGrowWrapper.get_mol_string_name(mol_string)
+            hit_name = FastGrowWrapper.get_mol_string_name(mol_string)[:254]
             hit_score = FastGrowWrapper.get_mol_string_prop('Score', mol_string, cast_to=float)
+            ensemble_scores = {}
+            if growing.ensemble.complex_set.count() > 1:
+                for cmplx in growing.ensemble.complex_set.all():
+                    ensemble_scores[cmplx.name] = \
+                        FastGrowWrapper.get_mol_string_prop(cmplx.name.upper(), mol_string, cast_to=float)
             hit = Hit(
                 growing=growing,
                 name=hit_name,
                 score=hit_score,
                 file_string=mol_string,
-                file_type='sdf'
+                file_type='sdf',
+                ensemble_scores=ensemble_scores
             )
             hit.save()
 
@@ -101,7 +107,7 @@ class FastGrowWrapper:
     def get_mol_string_prop(prop, mol_string, cast_to=None):
         """get a property out of an SDF mol string"""
         for element in mol_string.split('> <'):
-            property_pair = [e.strip() for e in element.split('>\n')]
+            property_pair = [e.strip() for e in element.replace('$$$$', '').split('>\n')]
             if property_pair[0] != prop:
                 continue
             if cast_to is not None:

@@ -4,7 +4,7 @@
 
 Get python dependencies with [conda](https://docs.conda.io/en/latest/miniconda.html).
 ```bash
-conda create --name fastgrow -c anaconda -c conda-forge python=3.9 django celery psycopg2 redis redis-py vine pylint pylint-django coverage
+conda create --name fastgrow -c anaconda -c conda-forge python=3.9 django celery psycopg2 redis redis-py vine pylint pylint-django coverage selenium
 conda activate fastgrow
 ```
 
@@ -48,7 +48,7 @@ celery -A fast_grow_server worker --loglevel=INFO
 ```
 ...or in a more debug and IDE friendly way:
 ```bash
-python venv/bin/celery -A fast_grow_server worker --loglevel=INFO
+python /path/to/env/fastgrow/bin/celery -A fast_grow_server worker --loglevel=INFO
 ```
 
 To start the server run:

@@ -170,7 +170,7 @@ def test_fragment_set():
         'pg_restore',
         '-h', settings.DATABASES['default']['HOST'],
         '-U', settings.DATABASES['default']['USER'],
-        '-n', 'public',  # Only restore data from the public schema. Something in the dump seems to be outside that.
+        '-n', 'public',  # Only restore data from the public schema.
         '-d', fragment_set_name, fragment_set_path
     ])
     fragment_set = FragmentSet(name=fragment_set_name)
@@ -207,7 +207,12 @@ def search_point_growing():
       "type": "HYDROPHOBIC"
     }
 }"""
-    growing = Growing(ensemble=ensemble, core=core, fragment_set=fragment_set, search_points=search_point)
+    growing = Growing(
+        ensemble=ensemble,
+        core=core,
+        fragment_set=fragment_set,
+        search_points=search_point
+    )
     growing.save()
     return growing
 
@@ -230,6 +235,52 @@ def processed_growing():
     growing = Growing(ensemble=ensemble, core=core, fragment_set=fragment_set)
     growing.save()
     for i in range(5):
-        hit = Hit(growing=growing, name='hit' + str(i), score=0.0, file_type='sdf', file_string='', ensemble_scores={})
+        hit = Hit(
+            growing=growing,
+            name='hit' + str(i),
+            score=0.0,
+            file_type='sdf',
+            file_string='',
+            ensemble_scores={}
+        )
+        hit.save()
+    return growing
+
+
+def processed_ensemble_search_point_growing():
+    """Create a processed growing with an ensemble and search points"""
+    ensemble = processed_ensemble()
+    core = test_core(ensemble.ligand_set.first())
+    fragment_set = test_fragment_set()
+    search_point = """
+    {
+        "type": "MATCH",
+        "mode": "INCLUDE",
+        "radius": 3,
+        "searchPoint": {
+          "position": [
+            91.181,
+            91.888,
+            -46.398
+          ],
+          "type": "HYDROPHOBIC"
+        }
+    }"""
+    growing = Growing(
+        ensemble=ensemble,
+        core=core,
+        fragment_set=fragment_set,
+        search_points=search_point
+    )
+    growing.save()
+    for i in range(5):
+        hit = Hit(
+            growing=growing,
+            name='hit' + str(i),
+            score=0.0,
+            file_type='sdf',
+            file_string='',
+            ensemble_scores={}
+        )
         hit.save()
     return growing

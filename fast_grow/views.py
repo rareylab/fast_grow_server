@@ -4,7 +4,7 @@ import json
 import re
 import urllib.request
 import urllib.error
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from fast_grow_server import settings
 from .models import Complex, Core, FragmentSet, Growing, Ligand, Ensemble, SearchPointData
@@ -246,6 +246,24 @@ def growing_detail(request, growing_id):
     return JsonResponse(growing.dict(detail=detail, nof_hits=nof_hits), status=200, safe=False)
 
 
+@csrf_exempt
+def growing_download(request, growing_id):
+    """Download a growing"""
+    try:
+        growing = Growing.objects.get(id=growing_id)
+        zip_bytes = growing.write_zip_bytes()
+        response = HttpResponse(zip_bytes.getvalue(), content_type='application/x-zip-compressed')
+        response['Content-Length'] = len(response.content)
+        response['Content-Disposition'] = f'attachment; filename="growing_{growing.id}.zip"'
+        return response
+    except Growing.DoesNotExist:
+        return HttpResponse({'error': 'model not found'}, status=404)
+
+
 def fragment_set_index(request):
     """Get an index of fragment sets"""
-    return JsonResponse([fragment_set.dict() for fragment_set in FragmentSet.objects.all()], status=200, safe=False)
+    return JsonResponse(
+        [fragment_set.dict() for fragment_set in FragmentSet.objects.all()],
+        status=200,
+        safe=False
+    )

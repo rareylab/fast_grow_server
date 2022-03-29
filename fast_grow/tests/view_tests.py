@@ -6,7 +6,8 @@ from django.test import TestCase
 from fast_grow_server import celery_app
 from fast_grow.models import Core, Status
 from .fixtures import TEST_FILES, processed_single_ensemble, test_ligand, test_core, \
-    test_fragment_set, processed_growing, processed_search_points
+    test_fragment_set, processed_growing, processed_search_points,\
+    processed_ensemble_search_point_growing
 
 
 class ViewTests(TestCase):
@@ -334,7 +335,7 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
         self.assertIn('id', response_json)
-        self.assertIn('complex', response_json)
+        self.assertIn('ensemble', response_json)
         self.assertIn('core', response_json)
         self.assertIn('fragment_set', response_json)
         self.assertIn('search_points', response_json)
@@ -357,5 +358,14 @@ class ViewTests(TestCase):
             self.assertEqual(response.status_code, 400)
             response_json = response.json()
             self.assertEqual(response_json['error'], 'invalid value for nof_hits')
+        finally:
+            subprocess.check_call(['dropdb', '-h', 'localhost', growing.fragment_set.name])
+
+    def test_growing_download(self):
+        growing = processed_ensemble_search_point_growing()
+        try:
+            response = self.client.get('/growing/{}/download'.format(growing.id))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response['Content-Type'], 'application/x-zip-compressed')
         finally:
             subprocess.check_call(['dropdb', '-h', 'localhost', growing.fragment_set.name])

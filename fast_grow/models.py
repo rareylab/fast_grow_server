@@ -1,7 +1,9 @@
 """fast_grow models"""
 import json
 import os
+from io import BytesIO
 from tempfile import NamedTemporaryFile, TemporaryDirectory
+from zipfile import ZipFile
 from django.db import models
 
 
@@ -45,9 +47,12 @@ class Ensemble(models.Model):
         :return ensemble directory
         """
         directory = TemporaryDirectory()
-        for protein in self.complex_set.all():
-            protein.write_temp(temp_dir=directory.name)
+        self.write(directory.name)
         return directory
+
+    def write(self, path):
+        for protein in self.complex_set.all():
+            protein.write_temp(temp_dir=path)
 
     def dict(self, detail=False):
         """Convert ensemble to dict
@@ -190,16 +195,19 @@ class Core(models.Model):
             core_dict['file_string'] = self.file_string
         return core_dict
 
-    def write_temp(self):
+    def write_temp(self, path=None):
         """Write a tempfile containing the core
 
         :return core_file
         """
         filename = self.name + '.' + self.file_type
-        temp_file = NamedTemporaryFile(mode='w+', suffix=filename)
-        temp_file.write(self.file_string)
-        temp_file.seek(0)
-        return temp_file
+        if not path:
+            core_file = NamedTemporaryFile(mode='w+', suffix=filename)
+        else:
+            core_file = open(os.path.join(path, filename), 'w')
+        core_file.write(self.file_string)
+        core_file.seek(0)
+        return core_file
 
 
 class FragmentSet(models.Model):
@@ -232,7 +240,7 @@ class Growing(models.Model):
         """
         growing_dict = {
             'id': self.id,
-            'complex': self.ensemble.dict(detail=detail),
+            'ensemble': self.ensemble.dict(detail=detail),
             'core': self.core.dict(detail=detail),
             'fragment_set': self.fragment_set.name,
             'search_points': json.loads(self.search_points) if self.search_points else None,
@@ -243,6 +251,39 @@ class Growing(models.Model):
         elif self.hit_set.count():
             growing_dict['hits'] = [h.dict() for h in self.hit_set.order_by('score').all()]
         return growing_dict
+
+    def write_zip_bytes(self):
+        temp_dir = TemporaryDirectory()
+        zip_bytes = BytesIO()
+        zip_file = ZipFile(zip_bytes, 'w')
+        ensemble_path = os.path.join(temp_dir.name, 'ensemble')
+        os.mkdir(ensemble_path)
+
+        self.ensemble.write(path=ensemble_path)
+        for protein in os.listdir(ensemble_path):
+            zip_file.write(
+                os.path.join(ensemble_path, protein),
+                os.path.join('growing', 'ensemble', protein)
+            )
+
+        core_file = self.core.write_temp(path=temp_dir.name)
+        zip_file.write(core_file.name, os.path.join('growing', os.path.basename(core_file.name)))
+
+        if self.search_points:
+            search_point_path = os.path.join(temp_dir.name, 'search_points.json')
+            with open(search_point_path, 'w') as search_point_file:
+                json.dump(self.search_points, search_point_file)
+            zip_file.write(
+                search_point_file.name,
+                os.path.join('growing', os.path.basename(search_point_path)))
+
+        if self.hit_set.count() > 0:
+            hits_path = os.path.join(temp_dir.name, 'hits.sdf')
+            with open(hits_path, 'w') as hits_file:
+                for hit in self.hit_set.all():
+                    hits_file.write(hit.file_string)
+            zip_file.write(hits_path, os.path.join('growing', 'hits.sdf'))
+        return zip_bytes
 
 
 class Hit(models.Model):

@@ -1,13 +1,12 @@
 """Django view tests"""
 import json
 import os
-import subprocess
 from django.test import TestCase
 from fast_grow_server import celery_app
 from fast_grow.models import Core, Status
 from .fixtures import TEST_FILES, processed_single_ensemble, test_ligand, test_core, \
     test_fragment_set, processed_growing, processed_search_points,\
-    processed_ensemble_search_point_growing
+    processed_ensemble_search_point_growing, delete_test_fragment_set
 
 
 class ViewTests(TestCase):
@@ -241,7 +240,7 @@ class ViewTests(TestCase):
                 content_type='application/json'
             )
         finally:
-            subprocess.check_call(['dropdb', '-h', 'localhost', fragment_set.name])
+            delete_test_fragment_set(fragment_set.name)
         self.assertEqual(response.status_code, 201)
         response_json = response.json()
         self.assertIn('id', response_json)
@@ -271,7 +270,7 @@ class ViewTests(TestCase):
                 }),
                 content_type='application/json')
         finally:
-            subprocess.check_call(['dropdb', '-h', 'localhost', fragment_set.name])
+            delete_test_fragment_set(fragment_set.name)
         self.assertEqual(response.status_code, 201)
         response_json = response.json()
         self.assertIn('id', response_json)
@@ -331,7 +330,7 @@ class ViewTests(TestCase):
                 'nof_hits': nof_hits
             })
         finally:
-            subprocess.check_call(['dropdb', '-h', 'localhost', growing.fragment_set.name])
+            delete_test_fragment_set(growing.fragment_set.name)
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
         self.assertIn('id', response_json)
@@ -359,7 +358,7 @@ class ViewTests(TestCase):
             response_json = response.json()
             self.assertEqual(response_json['error'], 'invalid value for nof_hits')
         finally:
-            subprocess.check_call(['dropdb', '-h', 'localhost', growing.fragment_set.name])
+            delete_test_fragment_set(growing.fragment_set.name)
 
     def test_growing_download(self):
         growing = processed_ensemble_search_point_growing()
@@ -368,4 +367,4 @@ class ViewTests(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response['Content-Type'], 'application/x-zip-compressed')
         finally:
-            subprocess.check_call(['dropdb', '-h', 'localhost', growing.fragment_set.name])
+            delete_test_fragment_set(growing.fragment_set.name)

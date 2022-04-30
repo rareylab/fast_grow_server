@@ -178,6 +178,15 @@ def test_fragment_set():
     return fragment_set
 
 
+def delete_test_fragment_set(fragment_set_name):
+    subprocess.check_call([
+        'dropdb',
+        '-h', settings.DATABASES['default']['HOST'],
+        '-U', settings.DATABASES['default']['USER'],
+        fragment_set_name
+    ])
+
+
 def test_growing():
     """Create a test growing"""
     ensemble = processed_single_ensemble()

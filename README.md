@@ -44,11 +44,11 @@ python manage.py test
 
 Celery workers can be run with:
 ```bash
-celery -A fast_grow_server worker --loglevel=INFO
+celery -A fast_grow_server worker --loglevel=INFO -O fair
 ```
 ...or in a more debug and IDE friendly way:
 ```bash
-python /path/to/env/fastgrow/bin/celery -A fast_grow_server worker --loglevel=INFO
+python /path/to/env/fastgrow/bin/celery -A fast_grow_server worker --loglevel=INFO -O fair
 ```
 
 To start the server run:

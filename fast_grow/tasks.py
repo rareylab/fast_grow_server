@@ -10,7 +10,12 @@ from .models import Ensemble, Core, SearchPointData, Status, Growing
 
 @shared_task
 def preprocess_ensemble(ensemble_id):
-    """preprocess a complex model using the preprocessor binary"""
+    """preprocess a complex model using the preprocessor binary
+
+    :param ensemble_id: id of an ensemble
+    :type ensemble_id: int
+    :raises Exception: re-raises exceptions encountered in job
+    """
     ensemble = Ensemble.objects.get(id=ensemble_id)
     try:
         PreprocessorWrapper.preprocess(ensemble)
@@ -25,7 +30,12 @@ def preprocess_ensemble(ensemble_id):
 
 @shared_task
 def clip_ligand(core_id):
-    """clip a ligand into a core"""
+    """clip a ligand into a core
+
+    :param core_id: id of a core
+    :type core_id: int
+    :raises Exception: re-raises exceptions encountered in job
+    """
     core = Core.objects.get(id=core_id)
     try:
         ClipperWrapper.clip(core)
@@ -40,7 +50,12 @@ def clip_ligand(core_id):
 
 @shared_task
 def generate_interactions(search_point_id):
-    """generate interactions search points for a ligand and complex"""
+    """generate interactions search points for a ligand and complex
+
+    :param search_point_id: id of search point data
+    :type search_point_id: int
+    :raises Exception: re-raises exceptions encountered in job
+    """
     search_point_data = SearchPointData.objects.get(id=search_point_id)
     try:
         InteractionWrapper.generate(search_point_data)
@@ -55,7 +70,12 @@ def generate_interactions(search_point_id):
 
 @shared_task
 def grow(growing_id):
-    """perform a growing"""
+    """perform a growing
+
+    :param growing_id: id of a growing
+    :type growing_id: int
+    :raises Exception: re-raises exceptions encountered in job
+    """
     growing = Growing.objects.get(id=growing_id)
     try:
         FastGrowWrapper.grow(growing)

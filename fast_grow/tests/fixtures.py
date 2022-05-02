@@ -10,23 +10,27 @@ TEST_FILES = os.path.join(settings.BASE_DIR, 'fast_grow', 'tests', 'test_files')
 
 
 def multi_ensemble():
-    """Create an ensemble with multiple complexes"""
+    """Create an ensemble with multiple complexes
+
+    :return: ensemble with multiple complexes
+    :rtype: Ensemble
+    """
     ensemble = Ensemble()
     ensemble.save()
 
-    with open(os.path.join(TEST_FILES, '4agm_clean.pdb')) as complex_file:
+    with open(os.path.join(TEST_FILES, '4agm_clean.pdb'), encoding='utf8') as complex_file:
         complex_string_4agm = complex_file.read()
     complex_4agm = \
         Complex(ensemble=ensemble, name='4agm', file_type='pdb', file_string=complex_string_4agm)
     complex_4agm.save()
 
-    with open(os.path.join(TEST_FILES, '4agn_clean.pdb')) as complex_file:
+    with open(os.path.join(TEST_FILES, '4agn_clean.pdb'), encoding='utf8') as complex_file:
         complex_string_4agn = complex_file.read()
     complex_4agn = \
         Complex(ensemble=ensemble, name='4agm', file_type='pdb', file_string=complex_string_4agn)
     complex_4agn.save()
 
-    with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
+    with open(os.path.join(TEST_FILES, 'P86_A_400.sdf'), encoding='utf8') as ligand_file:
         ligand_string = ligand_file.read()
     ligand = Ligand(name='P86_A_400', file_type='sdf', file_string=ligand_string, ensemble=ensemble)
     ligand.save()
@@ -34,11 +38,15 @@ def multi_ensemble():
 
 
 def single_ensemble():
-    """Create an ensemble with a single complexes"""
+    """Create an ensemble with a single complexes
+
+    :return: ensemble with a single complex
+    :rtype: Ensemble
+    """
     ensemble = Ensemble()
     ensemble.save()
 
-    with open(os.path.join(TEST_FILES, '4agm.pdb')) as complex_file:
+    with open(os.path.join(TEST_FILES, '4agm.pdb'), encoding='utf8') as complex_file:
         complex_string = complex_file.read()
     cmplx = Complex(ensemble=ensemble, name='4agm', file_type='pdb', file_string=complex_string)
     cmplx.save()
@@ -46,16 +54,20 @@ def single_ensemble():
 
 
 def single_ensemble_with_ligand():
-    """Create an ensemble with a single complexes and a ligand"""
+    """Create an ensemble with a single complexes and a ligand
+
+    :return: ensemble with single protein and ligand
+    :rtype: Ensemble
+    """
     ensemble = Ensemble()
     ensemble.save()
 
-    with open(os.path.join(TEST_FILES, '4agm_clean.pdb')) as complex_file:
+    with open(os.path.join(TEST_FILES, '4agm_clean.pdb'), encoding='utf8') as complex_file:
         complex_string = complex_file.read()
     cmplx = Complex(ensemble=ensemble, name='4agm', file_type='pdb', file_string=complex_string)
     cmplx.save()
 
-    with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
+    with open(os.path.join(TEST_FILES, 'P86_A_400.sdf'), encoding='utf8') as ligand_file:
         ligand_string = ligand_file.read()
     ligand = Ligand(name='P86_A_400', file_type='sdf', file_string=ligand_string, ensemble=ensemble)
     ligand.save()
@@ -63,16 +75,20 @@ def single_ensemble_with_ligand():
 
 
 def processed_single_ensemble():
-    """Create a preprocessed ensemble with a single complexes"""
+    """Create a preprocessed ensemble with a single complexes
+
+    :return: preprocessed ensemble with a single complexes
+    :rtype: Ensemble
+    """
     ensemble = Ensemble()
     ensemble.save()
 
-    with open(os.path.join(TEST_FILES, '4agm_clean.pdb')) as complex_file:
+    with open(os.path.join(TEST_FILES, '4agm_clean.pdb'), encoding='utf8') as complex_file:
         complex_string = complex_file.read()
     cmplx = Complex(ensemble=ensemble, name='4agm', file_type='pdb', file_string=complex_string)
     cmplx.save()
 
-    with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
+    with open(os.path.join(TEST_FILES, 'P86_A_400.sdf'), encoding='utf8') as ligand_file:
         ligand_string = ligand_file.read()
     ligand = Ligand(name='P86_A_400', file_type='sdf', file_string=ligand_string, ensemble=ensemble)
     ligand.save()
@@ -81,28 +97,33 @@ def processed_single_ensemble():
 
 
 def processed_ensemble():
-    """Create a preprocessed ensemble with multiple single complexes"""
+    """Create a preprocessed ensemble with multiple single complexes
+
+    :return: preprocessed ensemble with multiple single complexes
+    :rtype: Ensemble
+    """
     ensemble = Ensemble()
     ensemble.save()
 
-    with open(os.path.join(TEST_FILES, '4agm_clean.pdb')) as complex_file:
+    with open(os.path.join(TEST_FILES, '4agm_clean.pdb'), encoding='utf8') as complex_file:
         complex_string_4agm = complex_file.read()
     complex_4agm = \
         Complex(ensemble=ensemble, name='4agm', file_type='pdb', file_string=complex_string_4agm)
     complex_4agm.save()
 
-    with open(os.path.join(TEST_FILES, '4agn_clean.pdb')) as complex_file:
+    with open(os.path.join(TEST_FILES, '4agn_clean.pdb'), encoding='utf8') as complex_file:
         complex_string_4agn = complex_file.read()
     complex_4agn = \
         Complex(ensemble=ensemble, name='4agn', file_type='pdb', file_string=complex_string_4agn)
     complex_4agn.save()
 
-    with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
+    with open(os.path.join(TEST_FILES, 'P86_A_400.sdf'), encoding='utf8') as ligand_file:
         ligand_string = ligand_file.read()
     ligand = Ligand(name='P86_A_400', file_type='sdf', file_string=ligand_string, ensemble=ensemble)
     ligand.save()
 
-    with open(os.path.join(TEST_FILES, 'P86_A_400_search_points.json')) as search_points_file:
+    with open(os.path.join(TEST_FILES, 'P86_A_400_search_points.json'), encoding='utf8') \
+            as search_points_file:
         data = json.load(search_points_file)
     search_point_data = SearchPointData(
         data=json.dumps(data),
@@ -114,10 +135,14 @@ def processed_ensemble():
 
 
 def test_ligand():
-    """Create a test ligand"""
+    """Create a test ligand
+
+    :return: test ligand
+    :rtype: Ligand
+    """
     ensemble = Ensemble()
     ensemble.save()
-    with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
+    with open(os.path.join(TEST_FILES, 'P86_A_400.sdf'), encoding='utf8') as ligand_file:
         ligand_string = ligand_file.read()
     ligand = Ligand(name='P86_A_400', file_type='sdf', file_string=ligand_string, ensemble=ensemble)
     ligand.save()
@@ -125,8 +150,14 @@ def test_ligand():
 
 
 def test_core(ligand):
-    """Create a test core from a ligand"""
-    with open(os.path.join(TEST_FILES, 'P86_A_400_18_2.sdf')) as core_file:
+    """Create a test core from a ligand
+
+    :param ligand: ligand to generate the core for
+    :type ligand: Ligand
+    :return: test core
+    :rtype: Core
+    """
+    with open(os.path.join(TEST_FILES, 'P86_A_400_18_2.sdf'), encoding='utf8') as core_file:
         core_string = core_file.read()
     core = Core(
         ligand=ligand,
@@ -142,9 +173,14 @@ def test_core(ligand):
 
 
 def processed_search_points():
-    """Create a set of processed search points"""
+    """Create a set of processed search points
+
+    :return: search point data
+    :rtype: SearchPointData
+    """
     ensemble = processed_single_ensemble()
-    with open(os.path.join(TEST_FILES, 'P86_A_400_search_points.json')) as search_point_file:
+    with open(os.path.join(TEST_FILES, 'P86_A_400_search_points.json'), encoding='utf8') \
+            as search_point_file:
         data = search_point_file.read()
     search_point_data = SearchPointData(
         ligand=ensemble.ligand_set.first(),
@@ -157,7 +193,13 @@ def processed_search_points():
 
 
 def test_fragment_set():
-    """Create a test fragment set"""
+    """Create a test fragment set
+
+    Creates an actual database in the configured RDBMS.
+
+    :return: test fragment set
+    :rtype: FragmentSet
+    """
     fragment_set_name = 'test_fragment_set'
     fragment_set_path = os.path.join(TEST_FILES, 'test_fragment_set.tar')
     subprocess.check_call([
@@ -188,7 +230,11 @@ def delete_test_fragment_set(fragment_set_name):
 
 
 def test_growing():
-    """Create a test growing"""
+    """Create a test growing
+
+    :return: test growing
+    :rtype: Growing
+    """
     ensemble = processed_single_ensemble()
     core = test_core(ensemble.ligand_set.first())
     fragment_set = test_fragment_set()
@@ -198,7 +244,11 @@ def test_growing():
 
 
 def search_point_growing():
-    """Create a test growing"""
+    """Create a test growing with search points
+
+    :return: test growing with search points
+    :rtype: Growing
+    """
     ensemble = processed_single_ensemble()
     core = test_core(ensemble.ligand_set.first())
     fragment_set = test_fragment_set()
@@ -227,7 +277,11 @@ def search_point_growing():
 
 
 def ensemble_growing():
-    """Create a test ensemble growing"""
+    """Create a test ensemble growing
+
+    :return: test ensemble growing
+    :rtype: Growing
+    """
     ensemble = processed_ensemble()
     core = test_core(ensemble.ligand_set.first())
     fragment_set = test_fragment_set()
@@ -237,7 +291,11 @@ def ensemble_growing():
 
 
 def processed_growing():
-    """Create a processed ensemble growing"""
+    """Create a processed ensemble growing
+
+    :return: processed ensemble growing
+    :rtype: Growing
+    """
     ensemble = processed_single_ensemble()
     core = test_core(ensemble.ligand_set.first())
     fragment_set = test_fragment_set()
@@ -257,7 +315,11 @@ def processed_growing():
 
 
 def processed_ensemble_search_point_growing():
-    """Create a processed growing with an ensemble and search points"""
+    """Create a processed growing with an ensemble and search points
+
+    :return: processed growing with an ensemble and search points
+    :rtype: Growing
+    """
     ensemble = processed_ensemble()
     core = test_core(ensemble.ligand_set.first())
     fragment_set = test_fragment_set()

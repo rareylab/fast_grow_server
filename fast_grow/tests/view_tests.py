@@ -5,7 +5,7 @@ from django.test import TestCase
 from fast_grow_server import celery_app
 from fast_grow.models import Core, Status
 from .fixtures import TEST_FILES, processed_single_ensemble, test_ligand, test_core, \
-    test_fragment_set, processed_growing, processed_search_points,\
+    test_fragment_set, processed_growing, processed_search_points, \
     processed_ensemble_search_point_growing, delete_test_fragment_set
 
 
@@ -18,7 +18,7 @@ class ViewTests(TestCase):
 
     def test_create_complex(self):
         """Test the complex create route creates a complex model"""
-        with open(os.path.join(TEST_FILES, '4agm.pdb')) as complex_file:
+        with open(os.path.join(TEST_FILES, '4agm.pdb'), encoding='utf8') as complex_file:
             response = self.client.post('/complex', {'ensemble[]': [complex_file]})
         self.assertEqual(response.status_code, 201)
         response_json = response.json()
@@ -28,8 +28,8 @@ class ViewTests(TestCase):
 
     def test_create_complex_with_ligand(self):
         """Test the complex create route creates a complex model with a custom ligand"""
-        with open(os.path.join(TEST_FILES, '4agm.pdb')) as complex_file:
-            with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
+        with open(os.path.join(TEST_FILES, '4agm.pdb'), encoding='utf8') as complex_file:
+            with open(os.path.join(TEST_FILES, 'P86_A_400.sdf'), encoding='utf8') as ligand_file:
                 response = self.client.post('/complex',
                                             {'ensemble[]': [complex_file], 'ligand': ligand_file})
         self.assertEqual(response.status_code, 201)
@@ -50,7 +50,7 @@ class ViewTests(TestCase):
     def test_create_complex_with_pdb_code_and_ligand(self):
         """Test the complex create route creates a complex model with a pdb code and a custom
          ligand"""
-        with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
+        with open(os.path.join(TEST_FILES, 'P86_A_400.sdf'), encoding='utf8') as ligand_file:
             response = self.client.post('/complex', {'pdb': '4agm', 'ligand': ligand_file})
         self.assertEqual(response.status_code, 201)
         response_json = response.json()
@@ -72,14 +72,14 @@ class ViewTests(TestCase):
         self.assertEqual(response_json['error'], 'no complex specified')
 
         # not a pdb file
-        with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
+        with open(os.path.join(TEST_FILES, 'P86_A_400.sdf'), encoding='utf8') as ligand_file:
             response = self.client.post('/complex', {'ensemble[]': [ligand_file]})
         self.assertEqual(response.status_code, 400)
         response_json = response.json()
         self.assertEqual(response_json['error'], 'complex is not a PDB file (.pdb)')
 
         # ligand not an SD file
-        with open(os.path.join(TEST_FILES, '4agm.pdb')) as complex_file:
+        with open(os.path.join(TEST_FILES, '4agm.pdb'), encoding='utf8') as complex_file:
             response = self.client.post('/complex',
                                         {'ensemble[]': [complex_file], 'ligand': complex_file})
         self.assertEqual(response.status_code, 400)
@@ -101,7 +101,7 @@ class ViewTests(TestCase):
     def test_detail_complex(self):
         """Test the complex detail route returns all information for a complex"""
         ensemble = processed_single_ensemble()
-        response = self.client.get('/complex/{}'.format(ensemble.id))
+        response = self.client.get(f'/complex/{ensemble.id}')
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
         self.assertIn('id', response_json)
@@ -110,7 +110,7 @@ class ViewTests(TestCase):
 
     def test_detail_fail(self):
         """Test the complex detail route return 404 for an unknown complex"""
-        response = self.client.get('/complex/{}'.format(404))
+        response = self.client.get('/complex/404')
         self.assertEqual(response.status_code, 404)
         response_json = response.json()
         self.assertEqual(response_json['error'], 'model not found')
@@ -169,7 +169,7 @@ class ViewTests(TestCase):
     def test_core_detail(self):
         """Test the core detail route returns all information about the core"""
         ligand = test_ligand()
-        with open(os.path.join(TEST_FILES, 'P86_A_400_18_2.sdf')) as core_file:
+        with open(os.path.join(TEST_FILES, 'P86_A_400_18_2.sdf'), encoding='utf8') as core_file:
             core_string = core_file.read()
         core = Core(
             name='P86_Afrom .task_tests import grow_400_18_2',
@@ -182,7 +182,7 @@ class ViewTests(TestCase):
         )
         core.save()
 
-        response = self.client.get('/core/{}'.format(core.id))
+        response = self.client.get(f'/core/{core.id}')
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
         self.assertIn('id', response_json)
@@ -196,12 +196,13 @@ class ViewTests(TestCase):
 
     def test_core_detail_fail(self):
         """Test the core detail route returns 404 for an unknown complex"""
-        response = self.client.get('/core/{}'.format(404))
+        response = self.client.get('/core/404')
         self.assertEqual(response.status_code, 404)
         response_json = response.json()
         self.assertEqual(response_json['error'], 'model not found')
 
     def test_interactions_create(self):
+        """Test interaction generation"""
         ensemble = processed_single_ensemble()
         response = self.client.post(
             '/interactions',
@@ -217,8 +218,9 @@ class ViewTests(TestCase):
         self.assertEqual(Status.to_string(Status.PENDING), response_json['status'])
 
     def test_interactions_detail(self):
+        """Test getting interactions"""
         search_point_data = processed_search_points()
-        response = self.client.get('/interactions/{}'.format(search_point_data.id))
+        response = self.client.get(f'/interactions/{search_point_data.id}')
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
         self.assertIn('id', response_json)
@@ -325,7 +327,7 @@ class ViewTests(TestCase):
         growing = processed_growing()
         nof_hits = 3
         try:
-            response = self.client.get('/growing/{}'.format(growing.id), {
+            response = self.client.get(f'/growing/{growing.id}', {
                 'detail': True,
                 'nof_hits': nof_hits
             })
@@ -345,7 +347,7 @@ class ViewTests(TestCase):
     def test_growing_detail_fail(self):
         """Test growing detail route fails"""
         # growing does not exist
-        response = self.client.get('/growing/{}'.format(1), {'nof_hits': 100})
+        response = self.client.get('/growing/1', {'nof_hits': 100})
         self.assertEqual(response.status_code, 404)
         response_json = response.json()
         self.assertEqual(response_json['error'], 'model not found')
@@ -353,7 +355,7 @@ class ViewTests(TestCase):
         # nof_hits must be an int
         growing = processed_growing()
         try:
-            response = self.client.get('/growing/{}'.format(growing.id), {'nof_hits': 'fake'})
+            response = self.client.get(f'/growing/{growing.id}', {'nof_hits': 'fake'})
             self.assertEqual(response.status_code, 400)
             response_json = response.json()
             self.assertEqual(response_json['error'], 'invalid value for nof_hits')
@@ -361,9 +363,10 @@ class ViewTests(TestCase):
             delete_test_fragment_set(growing.fragment_set.name)
 
     def test_growing_download(self):
+        """Test downloading the growing"""
         growing = processed_ensemble_search_point_growing()
         try:
-            response = self.client.get('/growing/{}/download'.format(growing.id))
+            response = self.client.get(f'/growing/{growing.id}/download')
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response['Content-Type'], 'application/x-zip-compressed')
         finally:

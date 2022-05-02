@@ -17,6 +17,10 @@ def complex_create(request):
 
     If a ligand is uploaded as well, this ligand is associated with the complex. Schedules a celery
     job to preprocess the complex.
+
+    :param request: ensemble upload
+    :return: ensemble model
+    :rtype: JsonResponse
     """
     # this could be a decorator but I prefer the control
     if request.method != 'POST':
@@ -84,7 +88,14 @@ def complex_create(request):
 
 @csrf_exempt
 def complex_detail(request, ensemble_id):
-    """Get detailed information of a complex"""
+    """Get detailed information of a complex
+
+    :param request: ensemble request
+    :param ensemble_id: id of an ensemble
+    :type ensemble_id: int
+    :return: ensemble model or not found
+    :rtype: JsonResponse
+    """
     try:
         ensemble = Ensemble.objects.get(id=ensemble_id)
     except Ensemble.DoesNotExist:
@@ -94,7 +105,12 @@ def complex_detail(request, ensemble_id):
 
 @csrf_exempt
 def core_create(request):
-    """Create a core using a ligand"""
+    """Create a core using a ligand
+
+    :param request: ligand clipping request
+    :return: core model
+    :rtype: JsonResponse
+    """
     # this could be a decorator but I prefer the control
     if request.method != 'POST' or request.content_type != 'application/json':
         return JsonResponse({'error': 'bad request'}, status=400)
@@ -133,7 +149,14 @@ def core_create(request):
 
 @csrf_exempt
 def core_detail(request, core_id):
-    """Get detailed information of a core"""
+    """Get detailed information of a core
+
+    :param request: core request
+    :param core_id: core id
+    :type core_id: int
+    :return: core model or not found
+    :rtype: JsonResponse
+    """
     try:
         core = Core.objects.get(id=core_id)
     except Core.DoesNotExist:
@@ -143,7 +166,12 @@ def core_detail(request, core_id):
 
 @csrf_exempt
 def interactions_create(request):
-    """Generate interactions for specified ligand and complex"""
+    """Generate interactions for specified ligand and complex
+
+    :param request: interactions generation request
+    :return: search point data model
+    :rtype: JsonResponse
+    """
     # this could be a decorator but I prefer the control
     if request.method != 'POST' or request.content_type != 'application/json':
         return JsonResponse({'error': 'bad request'}, status=400)
@@ -176,7 +204,14 @@ def interactions_create(request):
 
 @csrf_exempt
 def interactions_detail(request, search_point_data_id):
-    """Get detailed interaction data"""
+    """Get detailed interaction data
+
+    :param request: interaction request
+    :param search_point_data_id: search point data id
+    :type search_point_data_id: int
+    :return: search point data model
+    :rtype: JsonResponse
+    """
     try:
         search_point_data = SearchPointData.objects.get(id=search_point_data_id)
     except SearchPointData.DoesNotExist:
@@ -186,7 +221,12 @@ def interactions_detail(request, search_point_data_id):
 
 @csrf_exempt
 def growing_create(request):
-    """Create a growing"""
+    """Create a growing
+
+    :param request: growing request
+    :return: growing model
+    :rtype: JsonResponse
+    """
     # this could be a decorator but I prefer the control
     if request.method != 'POST' or request.content_type != 'application/json':
         return JsonResponse({'error': 'bad request'}, status=400)
@@ -234,7 +274,14 @@ def growing_create(request):
 
 @csrf_exempt
 def growing_detail(request, growing_id):
-    """Get detailed information of a growing"""
+    """Get detailed information of a growing
+
+    :param request: growing request
+    :param growing_id: id of a growing
+    :type growing_id: int
+    :return: growing model or not found
+    :rtype: JsonResponse
+    """
     try:
         growing = Growing.objects.get(id=growing_id)
         detail = request.GET['detail'] if 'detail' in request.GET else False
@@ -248,7 +295,14 @@ def growing_detail(request, growing_id):
 
 @csrf_exempt
 def growing_download(request, growing_id):
-    """Download a growing"""
+    """Download a growing
+
+    :param request: growing download request
+    :param growing_id: growing id
+    :type growing_id: int
+    :return: zip file download or not found
+    :rtype: HttpResponse
+    """
     try:
         growing = Growing.objects.get(id=growing_id)
         zip_bytes = growing.write_zip_bytes()
@@ -261,7 +315,12 @@ def growing_download(request, growing_id):
 
 
 def fragment_set_index(request):
-    """Get an index of fragment sets"""
+    """Get an index of fragment sets
+
+    :param request: fragment set indext request
+    :return: list of fragment sets
+    :rtype: JsonResponse
+    """
     return JsonResponse(
         [fragment_set.dict() for fragment_set in FragmentSet.objects.all()],
         status=200,

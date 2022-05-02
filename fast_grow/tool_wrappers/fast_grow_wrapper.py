@@ -19,47 +19,54 @@ class FastGrowWrapper:
         """Perform a growing according to the options in the growing model
 
         :param growing: growing model that defines the growing
+        :type growing: fast_grow.models.Growing
         """
         core_file = growing.core.write_temp()
         database_name = growing.fragment_set.name
-        directory = TemporaryDirectory()
-        hits_path = Path(directory.name) / 'hits.sdf'
-        args = [
-            FAST_GROW,
-            '--ligand', core_file.name,
-            '--results', str(hits_path),
-            '--database', database_name,
-            '--chunksize', str(CHUNK_SIZE),
-            '--writemode', '1',
-            '--databasetype', '0',
-            '--username', DATABASES['default']['USER'],
-            '--port', DATABASES['default']['PORT'],
-            '--host', DATABASES['default']['HOST']
-        ]
-        ensemble_dir = growing.ensemble.write_temp()
-        args.extend(['--ensemble', ensemble_dir.name])
-        if growing.search_points:
-            search_points_file = FastGrowWrapper.write_temp_search_points(growing.search_points)
-            args.extend(['--interactions', search_points_file.name])
-        logging.info(' '.join(args))
-        full_args = args + ['--password', DATABASES['default']['PASSWORD']]
-        process = subprocess.Popen(full_args)
-        seen = set()
-        while True:
-            FastGrowWrapper.process_hits(growing, directory.name, seen)
-            time.sleep(1)
-            if process.poll() is not None:
-                break
-        FastGrowWrapper.process_hits(growing, directory.name, seen)
+        with TemporaryDirectory() as directory:
+            hits_path = Path(directory) / 'hits.sdf'
+            args = [
+                FAST_GROW,
+                '--ligand', core_file.name,
+                '--results', str(hits_path),
+                '--database', database_name,
+                '--chunksize', str(CHUNK_SIZE),
+                '--writemode', '1',
+                '--databasetype', '0',
+                '--username', DATABASES['default']['USER'],
+                '--port', DATABASES['default']['PORT'],
+                '--host', DATABASES['default']['HOST']
+            ]
+            ensemble_dir = growing.ensemble.write_temp()
+            args.extend(['--ensemble', ensemble_dir.name])
+            if growing.search_points:
+                search_points_file = FastGrowWrapper.write_temp_search_points(growing.search_points)
+                args.extend(['--interactions', search_points_file.name])
+            logging.info(' '.join(args))
+            full_args = args + ['--password', DATABASES['default']['PASSWORD']]
+            process = subprocess.Popen(full_args)
+            seen = set()
+            while True:
+                FastGrowWrapper.process_hits(growing, directory, seen)
+                time.sleep(1)
+                if process.poll() is not None:
+                    break
+            FastGrowWrapper.process_hits(growing, directory, seen)
 
-        if process.returncode > 0:
-            stdout, stderr = process.communicate()
-            raise subprocess.CalledProcessError(
-                process.returncode, args, output=stdout, stderr=stderr)
+            if process.returncode > 0:
+                stdout, stderr = process.communicate()
+                raise subprocess.CalledProcessError(
+                    process.returncode, args, output=stdout, stderr=stderr)
 
     @staticmethod
     def write_temp_search_points(search_points):
-        """Write a search points query file"""
+        """Write a search points query file
+
+        :param search_points: search points to write
+        :type search_points: str
+        :return: temporary search point file
+        :rtype: File
+        """
         temp_file = NamedTemporaryFile(mode='w+', suffix='search_points.json')
         json.dump({'query': json.loads(search_points)}, temp_file)
         temp_file.seek(0)
@@ -67,7 +74,15 @@ class FastGrowWrapper:
 
     @staticmethod
     def process_hits(growing, directory_path, seen_files):
-        """Process unseen hit files"""
+        """Process unseen hit files
+
+        :param growing: growing to save hits to
+        :type growing: fast_grow.models.Growing
+        :param directory_path: path to hits files
+        :type directory_path: str
+        :param seen_files: hits files already processed
+        :type seen_files: set
+        """
         with transaction.atomic():
             for hit_file in Path(directory_path).glob('*.sdf'):
                 if hit_file not in seen_files:
@@ -76,8 +91,14 @@ class FastGrowWrapper:
 
     @staticmethod
     def add_hits(growing, hits_path):
-        """Add hits from a hits file to a growing"""
-        with open(hits_path) as hits_file:
+        """Add hits from a hits file to a growing
+
+        :param growing: growing to add hits to
+        :type growing: fast_grow.models.Growing
+        :param hits_path: path to hits file
+        :type hits_path: str
+        """
+        with open(hits_path, encoding='utf8') as hits_file:
             data = hits_file.read()
         mol_strings = [m + '$$$$\n' for m in data.split('$$$$\n') if m.strip()]
         for mol_string in mol_strings:
@@ -100,12 +121,26 @@ class FastGrowWrapper:
 
     @staticmethod
     def get_mol_string_name(mol_string):
-        """get the mol name out of an SDF string"""
+        """get the mol name out of an SDF string
+
+        :param mol_string: string of an SDF
+        :type mol_string: str
+        :return: name of the mol in the SDF
+        :rtype: str
+        """
         return mol_string.split('\n')[0].strip()
 
     @staticmethod
     def get_mol_string_prop(prop, mol_string, cast_to=None):
-        """get a property out of an SDF mol string"""
+        """get a property out of an SDF mol string
+
+        :param prop: property to extract
+        :type prop: str
+        :param mol_string: string of an SDF
+        :type mol_string: str
+        :param cast_to: type to cast prop to
+        :return: property
+        """
         for element in mol_string.split('> <'):
             property_pair = [e.strip() for e in element.replace('$$$$', '').split('>\n')]
             if property_pair[0] != prop:

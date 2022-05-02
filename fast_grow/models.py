@@ -23,7 +23,13 @@ class Status:
 
     @staticmethod
     def to_string(status):
-        """Convert status to a readable string"""
+        """Convert status to a readable string
+
+        :param status: status char to convert
+        :type status: str
+        :return: status string
+        :rtype: str
+        """
         if status == 'p':
             return 'pending'
         if status == 'r':
@@ -44,21 +50,25 @@ class Ensemble(models.Model):
     def write_temp(self):
         """Write a temp directory containing the ensemble
 
-        :return ensemble directory
+        :return: ensemble directory
+        :rtype: TemporaryDirectory
         """
         directory = TemporaryDirectory()
         self.write(directory.name)
         return directory
 
     def write(self, path):
+        """Write ensemble proteins to path"""
         for protein in self.complex_set.all():
             protein.write_temp(temp_dir=path)
 
     def dict(self, detail=False):
         """Convert ensemble to dict
 
-        :param detail create a detailed view of the ensemble (this can be quite large)
-        :return ensemble_dict a dictionary containing members of the ensemble
+        :param detail: create a detailed view of the ensemble (this can be quite large)
+        :type detail: bool
+        :return: a dictionary containing members of the ensemble
+        :rtype: dict
         """
         ensemble_dict = {
             'id': self.id,
@@ -79,8 +89,10 @@ class Complex(models.Model):
     def dict(self, detail=False):
         """Convert complex to dictionary
 
-        :param detail create a detailed view of the complex (this can be quite large)
-        :return complex_dict a dictionary containing members of the complex in JSON friendly types
+        :param detail: create a detailed view of the complex (this can be quite large)
+        :type detail: bool
+        :return: a dictionary containing members of the complex in JSON friendly types
+        :rtype: dict
         """
         complex_dict = {
             'id': self.id,
@@ -97,12 +109,14 @@ class Complex(models.Model):
         Instead of writing a temp file pass a temp dir and write a real file into it. Cleanup of the
         this file is left up to the cleanup of the temp dir.
 
-        :param temp_dir temp dir to write into
-        :return complex_file
+        :param temp_dir: temp dir to write into
+        :type temp_dir: TemporaryDirectory
+        :return: complex file
+        :rtype: File
         """
         filename = self.name + '.' + self.file_type
         if temp_dir:
-            temp_file = open(os.path.join(temp_dir, filename), 'w+')
+            temp_file = open(os.path.join(temp_dir, filename), 'w+', encoding='utf8')
         else:
             temp_file = NamedTemporaryFile(mode='w+', suffix=filename)
         temp_file.write(self.file_string)
@@ -120,8 +134,10 @@ class Ligand(models.Model):
     def dict(self, detail=False):
         """Convert ligand to a dictionary
 
-        :param detail create a detailed view of the ligand (this can be quite large)
-        :return ligand_dict a dictionary containing members of the ligand in JSON friendly types
+        :param detail: create a detailed view of the ligand (this can be quite large)
+        :type detail: bool
+        :return: a dictionary containing members of the ligand in JSON friendly types
+        :rtype: dict
         """
         ligand_dict = {
             'id': self.id,
@@ -136,7 +152,8 @@ class Ligand(models.Model):
     def write_temp(self):
         """Write a tempfile containing the ligand
 
-        :return ligand_file
+        :return: ligand file
+        :rtype: NamedTemporaryFile
         """
         filename = self.name + '.' + self.file_type
         temp_file = NamedTemporaryFile(mode='w+', suffix=filename)
@@ -153,7 +170,13 @@ class SearchPointData(models.Model):
     status = models.CharField(max_length=1, choices=Status.choices, default=Status.PENDING)
 
     def dict(self, detail=False):
-        """Convert interaction to a dictionary"""
+        """Convert interaction to a dictionary
+
+        :param detail: create a detailed view of the search point data (this can be quite large)
+        :type detail: bool
+        :return: a dictionary containing members of the ligand in JSON friendly types
+        :rtype: dict
+        """
         search_point_dict = {
             'id': self.id,
             'complex_id': self.complex.id,
@@ -179,8 +202,10 @@ class Core(models.Model):
     def dict(self, detail=False):
         """Convert core to a dictionary
 
-        :param detail create a detailed view of the core (this can be quite large)
-        :return core_dict a dictionary containing members of the core in JSON friendly types
+        :param detail: create a detailed view of the core (this can be quite large)
+        :type detail: bool
+        :return: a dictionary containing members of the core in JSON friendly types
+        :rtype: dict
         """
         core_dict = {
             'id': self.id,
@@ -198,13 +223,16 @@ class Core(models.Model):
     def write_temp(self, path=None):
         """Write a tempfile containing the core
 
-        :return core_file
+        :param path: path to a dir to write into
+        :type path: str
+        :return: core file
+        :rtype: File
         """
         filename = self.name + '.' + self.file_type
         if not path:
             core_file = NamedTemporaryFile(mode='w+', suffix=filename)
         else:
-            core_file = open(os.path.join(path, filename), 'w')
+            core_file = open(os.path.join(path, filename), 'w', encoding='utf8')
         core_file.write(self.file_string)
         core_file.seek(0)
         return core_file
@@ -215,7 +243,11 @@ class FragmentSet(models.Model):
     name = models.CharField(max_length=255)
 
     def dict(self):
-        """Convert fragment set to dict"""
+        """Convert fragment set to dict
+
+        :return: a dictionary containing members of the fragment set in JSON friendly types
+        :rtype: dict
+        """
         return {
             'id': self.id,
             'name': self.name
@@ -234,9 +266,12 @@ class Growing(models.Model):
     def dict(self, detail=False, nof_hits=100):
         """Convert growing to dict
 
-        :param detail create a detailed view of the growing (this can be quite large)
-        :param nof_hits number of hits to extract from the database
-        :return growing_dict a dictionary containing members of the growing in JSON friendly types
+        :param detail: create a detailed view of the growing (this can be quite large)
+        :type detail: bool
+        :param nof_hits: number of hits to extract from the database
+        :type nof_hits: int
+        :return: a dictionary containing members of the growing in JSON friendly types
+        :rtype: dict
         """
         growing_dict = {
             'id': self.id,
@@ -253,36 +288,44 @@ class Growing(models.Model):
         return growing_dict
 
     def write_zip_bytes(self):
-        temp_dir = TemporaryDirectory()
-        zip_bytes = BytesIO()
-        zip_file = ZipFile(zip_bytes, 'w')
-        ensemble_path = os.path.join(temp_dir.name, 'ensemble')
-        os.mkdir(ensemble_path)
+        """Serialize the contents of the growing into ZIP bytes
 
-        self.ensemble.write(path=ensemble_path)
-        for protein in os.listdir(ensemble_path):
+        :return: zip bytes
+        :rtype: BytesIO
+        """
+        with TemporaryDirectory() as temp_dir:
+            zip_bytes = BytesIO()
+            zip_file = ZipFile(zip_bytes, 'w')
+            ensemble_path = os.path.join(temp_dir, 'ensemble')
+            os.mkdir(ensemble_path)
+
+            self.ensemble.write(path=ensemble_path)
+            for protein in os.listdir(ensemble_path):
+                zip_file.write(
+                    os.path.join(ensemble_path, protein),
+                    os.path.join('growing', 'ensemble', protein)
+                )
+
+            core_file = self.core.write_temp(path=temp_dir)
             zip_file.write(
-                os.path.join(ensemble_path, protein),
-                os.path.join('growing', 'ensemble', protein)
+                core_file.name,
+                os.path.join('growing', os.path.basename(core_file.name))
             )
 
-        core_file = self.core.write_temp(path=temp_dir.name)
-        zip_file.write(core_file.name, os.path.join('growing', os.path.basename(core_file.name)))
+            if self.search_points:
+                search_point_path = os.path.join(temp_dir, 'search_points.json')
+                with open(search_point_path, 'w', encoding='utf8') as search_point_file:
+                    json.dump(self.search_points, search_point_file)
+                zip_file.write(
+                    search_point_file.name,
+                    os.path.join('growing', os.path.basename(search_point_path)))
 
-        if self.search_points:
-            search_point_path = os.path.join(temp_dir.name, 'search_points.json')
-            with open(search_point_path, 'w') as search_point_file:
-                json.dump(self.search_points, search_point_file)
-            zip_file.write(
-                search_point_file.name,
-                os.path.join('growing', os.path.basename(search_point_path)))
-
-        if self.hit_set.count() > 0:
-            hits_path = os.path.join(temp_dir.name, 'hits.sdf')
-            with open(hits_path, 'w') as hits_file:
-                for hit in self.hit_set.all():
-                    hits_file.write(hit.file_string)
-            zip_file.write(hits_path, os.path.join('growing', 'hits.sdf'))
+            if self.hit_set.count() > 0:
+                hits_path = os.path.join(temp_dir, 'hits.sdf')
+                with open(hits_path, 'w', encoding='utf8') as hits_file:
+                    for hit in self.hit_set.all():
+                        hits_file.write(hit.file_string)
+                zip_file.write(hits_path, os.path.join('growing', 'hits.sdf'))
         return zip_bytes
 
 
@@ -296,7 +339,11 @@ class Hit(models.Model):
     file_string = models.TextField()
 
     def dict(self):
-        """Convert hit to dict"""
+        """Convert hit to dict
+
+        :return: a dictionary containing members of the hit in JSON friendly types
+        :rtype: dict
+        """
         return {
             'id': self.id,
             'name': self.name,

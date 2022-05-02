@@ -16,7 +16,7 @@ class TaskTests(TestCase):
         """Test the preprocessor binary exists at the correct location and is licensed"""
         self.assertTrue(
             os.path.exists(PREPROCESSOR),
-            'Preprocessor binary does not exist at {}'.format(PREPROCESSOR)
+            f'Preprocessor binary does not exist at {PREPROCESSOR}'
         )
         completed_process = subprocess.run(
             PREPROCESSOR, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
@@ -62,13 +62,13 @@ class TaskTests(TestCase):
         ensemble = Ensemble()
         ensemble.save()
         # complex with two ligands (suggests already processed complex)
-        with open(os.path.join(TEST_FILES, '4agm.pdb')) as complex_file:
+        with open(os.path.join(TEST_FILES, '4agm.pdb'), encoding='utf8') as complex_file:
             complex_string = complex_file.read()
         cmplx = Complex(
             ensemble=ensemble, name='4agm', file_type='pdb', file_string=complex_string)
         cmplx.save()
 
-        with open(os.path.join(TEST_FILES, 'P86_A_400.sdf')) as ligand_file:
+        with open(os.path.join(TEST_FILES, 'P86_A_400.sdf'), encoding='utf8') as ligand_file:
             ligand_string = ligand_file.read()
         ligand = Ligand(
             ensemble=ensemble, name='P86_A_400', file_type='sdf', file_string=ligand_string)
@@ -76,17 +76,13 @@ class TaskTests(TestCase):
         ligand = Ligand(
             ensemble=ensemble, name='P86_A_400', file_type='sdf', file_string=ligand_string)
         ligand.save()
-        try:
+        with self.assertRaises(RuntimeError):
             preprocess_ensemble.run(ensemble.id)
-        except Exception as error:
-            self.assertEqual(str(error),
-                             'ensemble({}) to be processed has more than one ligand'
-                             .format(ensemble.id))
 
     def test_clipper_available(self):
         """Test the clipper binary exists at the correct location and is licensed"""
         self.assertTrue(
-            os.path.exists(CLIPPER), 'Clipper binary does not exist at {}'.format(CLIPPER))
+            os.path.exists(CLIPPER), f'Clipper binary does not exist at {CLIPPER}')
         completed_process = subprocess.run(
             CLIPPER, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
         # 64 == ArgumentError, which means the preprocessor is ready to accept arguments
@@ -118,7 +114,7 @@ class TaskTests(TestCase):
     def test_interactions_available(self):
         """Test the clipper binary exists at the correct location and is licensed"""
         self.assertTrue(os.path.exists(INTERACTIONS),
-                        'Interaction generator binary does not exist at {}'.format(CLIPPER))
+                        f'Interaction generator binary does not exist at {CLIPPER}')
         completed_process = subprocess.run(
             INTERACTIONS, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
         # 64 == ArgumentError, which means the preprocessor is ready to accept arguments
@@ -128,7 +124,7 @@ class TaskTests(TestCase):
     def test_fast_grow_available(self):
         """Test the fast grow binary exists and is licensed"""
         self.assertTrue(
-            os.path.exists(FAST_GROW), 'Fast Grow binary does not exist at {}'.format(FAST_GROW))
+            os.path.exists(FAST_GROW), f'Fast Grow binary does not exist at {FAST_GROW}')
         completed_process = subprocess.run(
             FAST_GROW, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
         # 64 == ArgumentError, which means the preprocessor is ready to accept arguments
@@ -185,7 +181,10 @@ class TaskTests(TestCase):
         self.assertEqual(growing.hit_set.count(), 10)
         growing_dict = growing.dict()
         self.assertEqual(growing_dict['status'], 'success')
-        self.assertEqual(len(growing_dict['hits'][0]['ensemble_scores']), growing.ensemble.complex_set.count())
+        self.assertEqual(
+            len(growing_dict['hits'][0]['ensemble_scores']),
+            growing.ensemble.complex_set.count()
+        )
 
     def test_growing_fail(self):
         """Test fast grow processes a growing"""
@@ -194,7 +193,7 @@ class TaskTests(TestCase):
         growing.fragment_set.save()
         try:
             grow.run(growing.id)
-        except Exception:
+        except subprocess.CalledProcessError:
             growing = Growing.objects.get(id=growing.id)
             self.assertEqual(growing.status, Status.FAILURE)
         finally:

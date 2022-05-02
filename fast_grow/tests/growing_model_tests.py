@@ -13,10 +13,10 @@ class GrowingModelTests(TestCase):
         try:
             zip_bytes = growing.write_zip_bytes()
             zip_contents = zip_bytes.getvalue()
-            self.assertIn(bytes('growing/ensemble/4agn.pdb', encoding='ascii'), zip_contents)
-            self.assertIn(bytes('growing/ensemble/4agm.pdb', encoding='ascii'), zip_contents)
-            self.assertIn(bytes('growing/search_points.json', encoding='ascii'), zip_contents)
-            self.assertIn(bytes('growing/P86_A_400_18_2.sdf', encoding='ascii'), zip_contents)
-            self.assertIn(bytes('growing/hits.sdf', encoding='ascii'), zip_contents)
+            self.assertIn(bytes('growing/ensemble/4agn.pdb', encoding='utf8'), zip_contents)
+            self.assertIn(bytes('growing/ensemble/4agm.pdb', encoding='utf8'), zip_contents)
+            self.assertIn(bytes('growing/search_points.json', encoding='utf8'), zip_contents)
+            self.assertIn(bytes('growing/P86_A_400_18_2.sdf', encoding='utf8'), zip_contents)
+            self.assertIn(bytes('growing/hits.sdf', encoding='utf8'), zip_contents)
         finally:
             delete_test_fragment_set(growing.fragment_set.name)

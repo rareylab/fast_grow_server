@@ -16,42 +16,46 @@ class InteractionWrapper:
         """generate interaction data
 
         :param search_point_data: input data to generate interactions from
+        :type search_point_data: fast_grow.models.SearchPointData
         """
-        output_directory = InteractionWrapper.execute_generation(search_point_data)
-        data = InteractionWrapper.load_data(output_directory)
+        with TemporaryDirectory() as output_directory:
+            InteractionWrapper.execute_generation(search_point_data, output_directory)
+            data = InteractionWrapper.load_data(output_directory)
         search_point_data.data = json.dumps(data)
 
     @staticmethod
-    def execute_generation(search_point_data):
+    def execute_generation(search_point_data, output_directory):
         """execute the interaction generation
 
         :param search_point_data: input data to generate interactions from
-        :return: directory the interactions were generated in
+        :type search_point_data: fast_grow.models.SearchPointData
+        :param output_directory: output directory to generate data into
+        :type output_directory: str
         """
-        directory = TemporaryDirectory()
         ligand_file = search_point_data.ligand.write_temp()
         complex_file = search_point_data.complex.write_temp()
         args = [
             INTERACTIONS,
             '--pocket', complex_file.name,
             '--ligand', ligand_file.name,
-            '--outdir', directory.name
+            '--outdir', output_directory
         ]
         logging.debug(' '.join(args))
         subprocess.check_call(args)
-        return directory
 
     @staticmethod
     def load_data(output_directory):
         """load generated interaction data
 
         :param output_directory: directory the interactions were generated in
+        :type output_directory: str
         :return: interaction data
+        :rtype: dict
         """
-        search_point_path = os.path.join(output_directory.name, 'search_points.json')
+        search_point_path = os.path.join(output_directory, 'search_points.json')
         if not os.path.exists(search_point_path):
             raise RuntimeError('Did not generate any search points')
-        with open(search_point_path) as search_point_file:
+        with open(search_point_path, encoding='utf8') as search_point_file:
             # parse JSON string to make sure it is valid
             data = json.load(search_point_file)
         return data

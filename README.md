@@ -13,6 +13,9 @@ at [https://grow.zbh.uni-hamburg.de/](https://grow.zbh.uni-hamburg.de/)
 Core FastGrow functionality will be available in BioSolveIT’s [SeeSAR](https://www.biosolveit.de/SeeSAR/) modeling
 package.
 
+The sibling frontend repository can be found at
+[https://github.com/rareylab/fast_grow_frontend](https://github.com/rareylab/fast_grow_frontend)
+
 ## Setup
 
 Get python dependencies with [conda](https://docs.conda.io/en/latest/miniconda.html).

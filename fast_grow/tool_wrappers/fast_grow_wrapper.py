@@ -43,8 +43,7 @@ class FastGrowWrapper:
                 search_points_file = FastGrowWrapper.write_temp_search_points(growing.search_points)
                 args.extend(['--interactions', search_points_file.name])
             logging.info(' '.join(args))
-            full_args = args + ['--password', DATABASES['default']['PASSWORD']]
-            process = subprocess.Popen(full_args)
+            process = subprocess.Popen(args)
             seen = set()
             while True:
                 FastGrowWrapper.process_hits(growing, directory, seen)

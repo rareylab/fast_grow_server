@@ -189,6 +189,7 @@ class TaskTests(TestCase):
     def test_growing_fail(self):
         """Test fast grow processes a growing"""
         growing = test_growing()
+        real_fragment_set_name = growing.fragment_set.name
         growing.fragment_set.name = 'fake'
         growing.fragment_set.save()
         try:
@@ -197,4 +198,4 @@ class TaskTests(TestCase):
             growing = Growing.objects.get(id=growing.id)
             self.assertEqual(growing.status, Status.FAILURE)
         finally:
-            delete_test_fragment_set('test_fragment_set')
+            delete_test_fragment_set(real_fragment_set_name)

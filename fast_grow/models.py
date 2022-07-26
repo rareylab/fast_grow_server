@@ -241,6 +241,7 @@ class Core(models.Model):
 class FragmentSet(models.Model):
     """Model representing a fragment set"""
     name = models.CharField(max_length=255)
+    description = models.TextField(null=True)
 
     def dict(self):
         """Convert fragment set to dict
@@ -250,7 +251,8 @@ class FragmentSet(models.Model):
         """
         return {
             'id': self.id,
-            'name': self.name
+            'name': self.name,
+            'description': self.description
         }
 
 

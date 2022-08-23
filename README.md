@@ -5,7 +5,7 @@ a [shape-based](https://doi.org/10.1021/acs.jcim.0c00920) algorithm. A detailed 
 in the accompanying paper:
 
 Patrick Penner, Virginie Martiny, Louis Bellmann, Florian Flachsenberg, Marcus Gastreich, Isabelle Theret, Christophe Meyer and Matthias
-Rarey (submitted) FastGrow: On-the-Fly Growing and its Application to DYRK1A
+Rarey (2022) FastGrow: On-the-Fly Growing and its Application to DYRK1A, J. Comput. Aided Mol. Des., [https://doi.org/10.1007/s10822-022-00469-y](https://doi.org/10.1007/s10822-022-00469-y).
 
 A running instance of the web application can be found
 at [https://grow.zbh.uni-hamburg.de/](https://grow.zbh.uni-hamburg.de/)
